@@ -1,7 +1,9 @@
-import { supabase } from "$lib/supabaseClient";
 
-export async function load() {
-  const { data } = await supabase.from("community").select("*");
+import { json } from '@sveltejs/kit'
+
+export async function load({fetch}) {
+  let res = await fetch("./community");
+  let data = await res.json();
   return {
     community: data ?? [],
   };
