@@ -1,5 +1,6 @@
-// 1. Replace the following variables with the ones for your database. They can be found at https://supabase.com/docs/guides/getting-started/quickstarts/sveltekit
-// 2. Rename this file to ".env" BEFORE SAVING. This will ensure that your .env variables are not exposed on Github. Once the file has been renamed, save it, and you should be able to connect to your database.
+// 1. Make a copy of this file in the same folder and rename it to ".env" (<-- that's the ENTIRE file name)
+// 2. Replace the following variables with the ones for your database. They can be found at https://supabase.com/docs/guides/getting-started/quickstarts/sveltekit. Make sure they are surrounded by double quotes -> KEY="variable"
+// 2. Once done save it, and you should be able to connect to your database.
 
 PUBLIC_SUPABASE_URL="YOUR_SUPABASE_URL"
 PUBLIC_SUPABASE_ANON_KEY="YOUR_SUPABASE_KEY"
