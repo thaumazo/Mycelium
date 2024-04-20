@@ -2,10 +2,12 @@ import { json } from '@sveltejs/kit'
 import { supabase } from "$lib/supabaseClient";
 
 export async function GET(event) {
-  const { data } = await supabase.from("community").select("*");
-  // console.log(data);
-
-  return json(data);
+  try {
+    const { data, error } = await supabase.from("people").select("*");
+    return json(data)
+  } catch (error) {
+    console.log(error.message)
+  }
 }
 
 export async function POST({ request }) {
@@ -16,7 +18,7 @@ export async function POST({ request }) {
     if (dataEntry.id) {
       // If an ID is present, update the existing record
       const { data, error } = await supabase
-        .from('community')
+        .from('people')
         .update(dataEntry)
         .match({ id: dataEntry.id });  // Ensure to match the correct record by ID
 
@@ -25,7 +27,7 @@ export async function POST({ request }) {
     } else {
       // No ID, insert a new record
       const { data, error } = await supabase
-        .from('community')
+        .from('people')
         .insert([dataEntry]);
 
       result = { message: 'New community member added successfully!', data };
