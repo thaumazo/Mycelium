@@ -4,7 +4,6 @@ export async function load({ fetch }) {
   try {
     let res = await fetch("./people");
     let data = await res.json();
-    console.log('data: ', data);
     return {
       community: data ?? [],
     };

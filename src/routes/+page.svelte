@@ -2,9 +2,9 @@
 <script lang="ts">
 	import { Auth } from '@supabase/auth-ui-svelte';
 	import { ThemeSupa } from '@supabase/auth-ui-shared';
+	import WelcomeUser from '../lib/components/WelcomeUser.svelte';
 
 	export let data;
-	console.log(data);
 </script>
 
 <svelte:head>
@@ -17,16 +17,6 @@
 
 <div class="row flex-center flex">
 	<div class="col-6 form-widget">
-		{#if data.session}
-			<p>Hello user!</p>
-		{:else}
-			<Auth
-				supabaseClient={data.supabase}
-				view="sign_in"
-				redirectTo={`${data.url}/auth/callback`}
-				showLinks={false}
-				appearance={{ theme: ThemeSupa, style: { input: 'color: #fff' } }}
-			/>
-		{/if}
+		<WelcomeUser />
 	</div>
 </div>
