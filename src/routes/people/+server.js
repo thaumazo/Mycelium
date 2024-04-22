@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit'
-
 import { checkApiKey } from '$lib/apiUtils';
+
+// All of the functions in this file should be abstracted to a different utils file 
 
 export const GET = async ({ request, locals: { supabase, safeGetSession } }) => {
   const { session } = await safeGetSession()
@@ -19,15 +20,8 @@ export const GET = async ({ request, locals: { supabase, safeGetSession } }) => 
     }
 };
 
-// export const GET = async ({ url, locals: { supabase } }) => {
-//   try {
-//     const { data, error } = await supabase.from("people").select("*");
-//     return json(data)
-//   } catch (error) {
-//     console.log(error.message)
-//   }
-// }
 
+//needs to be updated to accept API keys. 
 export async function POST({ request }) {
   try {
     const dataEntry = await request.json();

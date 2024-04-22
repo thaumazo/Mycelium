@@ -3,8 +3,12 @@ import { error as kitError } from '@sveltejs/kit';
 
 import { PUBLIC_SUPABASE_URL } from '$env/static/public'
 
+// ---------- !!!!!!!!!!!!! --------------
 //DO NOT USE THIS KEY ANYWHERE EXCEPT FOR THIS FILE!!
+//DO NOT ADD FUNCTIONS TO THIS FILE. IF NEEDED, CREATE A NEW ONE WITH A MORE SECURE DATABASE CONNECTION.
 import { SECRET_SUPABASE_SERVICE_ROLL_KEY } from '$env/static/private'
+// ---------- !!!!!!!!!!!!! --------------
+
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(PUBLIC_SUPABASE_URL, SECRET_SUPABASE_SERVICE_ROLL_KEY)
