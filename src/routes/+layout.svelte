@@ -38,7 +38,7 @@
 		if (profileId) {
 			let res = await supabase.from(`profiles`).select('*').eq('id', profileId).single();
 			profileStore.set(res.data);
-			console.log($profileStore);
+			// console.log($profileStore);
 		}
 	}
 </script>
@@ -50,6 +50,6 @@
 {#if session}
 	<Navbar />
 {/if}
-<div class="container" style="padding: 50px 0 100px 0">
+<div>
 	<slot />
 </div>
