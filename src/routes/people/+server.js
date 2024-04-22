@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit'
 import { checkApiKey } from '$lib/apiUtils';
 
-// All of the functions in this file should be abstracted to a different utils file 
+// All of the functions in this file should be abstracted to a different utils file so they can be used in other routes.
+
 
 export const GET = async ({ request, locals: { supabase, safeGetSession } }) => {
   const { session } = await safeGetSession()
