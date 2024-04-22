@@ -14,7 +14,7 @@
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({...person}) // Example data, adjust as needed
+			body: JSON.stringify({ ...person }) // Example data, adjust as needed
 		});
 
 		if (response.ok) {
@@ -24,60 +24,62 @@
 		}
 	}
 
-    import FormModal from '$lib/components/FormModal.svelte';
+	import FormModal from '$lib/components/FormModal.svelte';
 
+	let showModal = false;
+	let currentPerson = {}; // Example initial structure
 
-    let showModal = false;
-    let currentPerson = {}; // Example initial structure
+	function openModal(isNew = true, person = {}) {
+		showModal = true;
+		currentPerson = isNew ? { name: '' } : person;
+	}
 
-    function openModal(isNew = true, person = {}) {
-        showModal = true;
-        currentPerson = isNew ? { name: ''} : person;
-    }
+	import { page } from '$app/stores';
+	import { invalidateAll } from '$app/navigation';
 
-    import { page } from '$app/stores';
-    import { invalidateAll } from '$app/navigation';
+	async function handleSave(event) {
+		console.log('Saving', event.detail.person);
+		showModal = false;
+		await handleNewRow(event.detail.person);
 
+		//used to refresh the data on the page. Should be using some form of invalidate('/pathname') but that isn't working. InvalidateAll() is the nuclear option which clears all pages/everything.
+		invalidateAll();
+	}
 
-
-    async function handleSave(event) {
-        console.log('Saving', event.detail.person);
-        showModal = false;
-        await handleNewRow(event.detail.person);
-
-        //used to refresh the data on the page. Should be using some form of invalidate('/pathname') but that isn't working. InvalidateAll() is the nuclear option which clears all pages/everything.
-        invalidateAll();
-    }
-
-    function handleClose() {
-        showModal = false;
-    }
+	function handleClose() {
+		showModal = false;
+	}
 </script>
 
-<table class="table table-zebra w-full">
-    <thead>
-        <tr>
-            <th>Actions</th>
-            {#each Object.keys(data.community[0]) as header}
-                <th>{header}</th>
-            {/each}
-        </tr>
-    </thead>
-    <tbody>
-        {#each data.community as person, index}
-            <tr>
-                <td>
-                    <button class="btn btn-xs btn-circle btn-accent" on:click={() => openModal(false, person)}>
-                        Edit
-                    </button>
-                </td>
-                {#each Object.keys(person) as key}
-                    <td>{person[key]}</td>
-                {/each}
-            </tr>
-        {/each}
-    </tbody>
-</table>
+<div class="overflow-x-auto w-full scrollbar-styled">
+	<table class="table table-zebra w-full min-w-max">
+		<thead>
+			<tr>
+				<th>Actions</th>
+				{#each Object.keys(data.community[0]) as header}
+					<th>{header}</th>
+				{/each}
+			</tr>
+		</thead>
+		<tbody>
+			{#each data.community as person, index}
+				<tr>
+					<td>
+						<button
+							class="btn btn-xs btn-accent"
+							on:click={() => openModal(false, person)}
+						>
+							Edit
+						</button>
+					</td>
+					{#each Object.keys(person) as key}
+						<td>{person[key]}</td>
+					{/each}
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+</div>
 
 <button class="btn btn-primary" on:click={() => openModal()}>Add new row</button>
 

@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add this CSS in your global.css or component specific style tag */
+.scrollbar-styled::-webkit-scrollbar {
+    width: 12px; /* Width of the vertical scrollbar */
+    height: 12px; /* Height of the horizontal scrollbar */
+}
+
+.scrollbar-styled::-webkit-scrollbar-track {
+    background: oklch(var(--n)); /* Color of the scrollbar track */
+    border-radius: 100px; /* Fully rounded corners for the track */
+}
+
+.scrollbar-styled::-webkit-scrollbar-thumb {
+    background-color: oklch(var(--bc)); /* Primary color of the thumb, can match your theme */
+    border-radius: 100px; /* Fully rounded corners for the thumb */
+}
