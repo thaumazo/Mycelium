@@ -10,6 +10,7 @@
 	$: ({ supabase, session } = data);
 
 	import { profileStore } from '../lib/stores';
+	import Navbar from '../lib/components/Navbar.svelte';
 
 	let userSubscription = null;
 
@@ -46,6 +47,9 @@
 	<title>User Management</title>
 </svelte:head>
 
+{#if session}
+	<Navbar />
+{/if}
 <div class="container" style="padding: 50px 0 100px 0">
 	<slot />
 </div>

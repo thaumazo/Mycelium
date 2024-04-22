@@ -65,6 +65,8 @@
 		</div>
 	</form>
 
+	<button on:click={() => console.log("This doesn't work yet! :)")} class="btn btn-primary">Generate new API Key</button>
+
 	<form method="post" action="?/signout" use:enhance={handleSignOut}>
 		<div>
 			<button class="btn button block" disabled={loading}>Sign Out</button>
