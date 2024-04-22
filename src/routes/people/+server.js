@@ -1,14 +1,32 @@
 import { json } from '@sveltejs/kit'
-import { supabase } from "$lib/supabaseClient";
 
-export async function GET(event) {
-  try {
-    const { data, error } = await supabase.from("people").select("*");
-    return json(data)
-  } catch (error) {
-    console.log(error.message)
-  }
-}
+import { checkApiKey } from '$lib/apiUtils';
+
+export const GET = async ({ request, locals: { supabase, safeGetSession } }) => {
+  const { session } = await safeGetSession()
+    try {
+        // Only check the API key if the user is not authenticated via normal web session
+        if (!session && !await checkApiKey(request, supabase)) {
+            throw new Error('Authentication required');
+        }
+
+        const { data, error } = await supabase.from("people").select("*");
+        if (error) throw new Error(error.message);
+        return json(data);
+    } catch (error) {
+        console.log(error.message);
+        return json({ error: error.message }, { status: 401 });
+    }
+};
+
+// export const GET = async ({ url, locals: { supabase } }) => {
+//   try {
+//     const { data, error } = await supabase.from("people").select("*");
+//     return json(data)
+//   } catch (error) {
+//     console.log(error.message)
+//   }
+// }
 
 export async function POST({ request }) {
   try {

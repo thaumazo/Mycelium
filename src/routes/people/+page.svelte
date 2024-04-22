@@ -34,7 +34,6 @@
 		currentPerson = isNew ? { name: '' } : person;
 	}
 
-	import { page } from '$app/stores';
 	import { invalidateAll } from '$app/navigation';
 
 	async function handleSave(event) {
@@ -51,34 +50,34 @@
 	}
 </script>
 
-<div class="overflow-x-auto w-full scrollbar-styled">
-	<table class="table table-zebra w-full min-w-max">
-		<thead>
-			<tr>
-				<th>Actions</th>
-				{#each Object.keys(data.community[0]) as header}
-					<th>{header}</th>
-				{/each}
-			</tr>
-		</thead>
-		<tbody>
-			{#each data.community as person, index}
-				<tr>
-					<td>
-						<button
-							class="btn btn-xs btn-accent"
-							on:click={() => openModal(false, person)}
-						>
-							Edit
-						</button>
-					</td>
-					{#each Object.keys(person) as key}
-						<td>{person[key]}</td>
-					{/each}
-				</tr>
-			{/each}
-		</tbody>
-	</table>
+<div class="overflow-x-auto scrollbar-styled m-4 border border-gray-300 rounded-lg">
+    <table class="table table-zebra w-full border-collapse border border-gray-400">
+        <thead>
+            <tr class="border-b border-gray-300">
+                <th class="border-r border-gray-300">Actions</th>
+                {#each headers as header}
+                    <th class="border-r border-gray-300">{header}</th>
+                {/each}
+            </tr>
+        </thead>
+        <tbody>
+            {#each data.community as person, index}
+                <tr class="border-b border-gray-300">
+                    <td class="border-r border-gray-300">
+                        <button
+                            class="btn btn-xs btn-accent"
+                            on:click={() => openModal(false, person)}
+                        >
+                            Edit
+                        </button>
+                    </td>
+                    {#each headers as key}
+                        <td class="border-r border-gray-300">{person[key]}</td>
+                    {/each}
+                </tr>
+            {/each}
+        </tbody>
+    </table>
 </div>
 
 <button class="btn btn-primary" on:click={() => openModal()}>Add new row</button>
