@@ -5,16 +5,12 @@ export const GET = async ({ url, locals: { supabase } }) => {
   const code = url.searchParams.get('code')
 
   if (code) {
-    try {
-      await supabase.auth.exchangeCodeForSession(code)  
-    } catch (error) {
-       console.log(error)
-    }
-    
+    await supabase.auth.exchangeCodeForSession(code)
   }
   else {
     throw redirect(303, '/auth')
   }
 
   throw redirect(303, '/')
+
 }
