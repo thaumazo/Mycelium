@@ -1,3 +1,11 @@
+# Project introduction
+
+## Project Structure
+This project includes 3 large components
+1. Supabase
+2. Sveltekit 
+3. Tailwind & Daisy UI
+
 
 # Project Setup
 1. Clone this repo with Git
@@ -12,7 +20,7 @@ npm run dev -- --open
 ```
 
 It is recommended to use VS code as your main code editor for this project, which can be downloaded here (https://code.visualstudio.com/download)
-
+ 
 # Project Tasks
 ✅ = Complete
 ➡️ = In progress

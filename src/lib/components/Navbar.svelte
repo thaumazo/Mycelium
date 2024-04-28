@@ -12,7 +12,7 @@
           <NavbarMenuItems />
         </ul>
       </div>
-      <a href="/" class="btn btn-ghost text-xl">Reid's Mycelium</a>
+      <a href="/" class="btn btn-ghost text-xl">Community Mycelium</a>
     </div>
     <div class="navbar-center hidden lg:flex z-10">
       <ul class="menu menu-horizontal px-1">

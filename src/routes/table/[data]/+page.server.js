@@ -1,6 +1,5 @@
 //<!-- +page.server.js -->
 import { loadUtil } from '$lib/apiUtils.js';
-import { page } from '$app/stores';
 
 export async function load({ fetch, url }) {
   let endpoint = url.pathname.split('/').at(-1);

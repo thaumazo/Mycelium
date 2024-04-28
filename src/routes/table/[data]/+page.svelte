@@ -4,27 +4,9 @@
 
 	// Function to extract headers from the first entry
 	let headers = [];
-	if (data.data.length > 0) {
+	$: {if (data.data.length > 0) {
 		headers = Object.keys(data.data[0]);
-	}
-
-	// async function handleNewRow(person) {
-	// 	const response = await fetch('./community', {
-	// 		method: 'POST',
-	// 		headers: {
-	// 			'Content-Type': 'application/json'
-	// 		},
-	// 		body: JSON.stringify({ ...person }) // Example data, adjust as needed
-	// 	});
-
-	// 	if (response.ok) {
-	// 		console.log('Data posted successfully');
-	// 	} else {
-	// 		console.error('Failed to post data');
-	// 	}
-	// }
-
-	import FormModal from '$lib/components/FormModal.svelte';
+	}}
 
 	let showModal = false;
 	let currentPerson = {}; // Example initial structure
@@ -34,7 +16,6 @@
 		currentPerson = isNew ? { name: '' } : person;
 	}
 
-	import { invalidateAll } from '$app/navigation';
 	import GenericTable from '$lib/components/GenericTable.svelte';
 
 	async function handleSave(event) {
