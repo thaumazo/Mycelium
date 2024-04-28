@@ -35,7 +35,7 @@
 	}
 
 	import { invalidateAll } from '$app/navigation';
-	import GenericTable from '../../lib/components/GenericTable.svelte';
+	import GenericTable from '$lib/components/GenericTable.svelte';
 
 	async function handleSave(event) {
 		console.log('Saving', event.detail.person);
