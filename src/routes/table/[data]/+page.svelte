@@ -4,9 +4,9 @@
 
 	// Function to extract headers from the first entry
 	let headers = [];
-	if (data.data.length > 0) {
+	$: {if (data.data.length > 0) {
 		headers = Object.keys(data.data[0]);
-	}
+	}}
 
 	// async function handleNewRow(person) {
 	// 	const response = await fetch('./community', {
