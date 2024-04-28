@@ -3,20 +3,20 @@
     import { createEventDispatcher } from 'svelte';
 
     export let show = false;
-    export let person = {};
+    export let item = {};
 
     const dispatch = createEventDispatcher();
 
     function save() {
-        dispatch('save', { person });
+        dispatch('save', { item });
     }
 
     function close() {
         dispatch('close');
     }
 
-    // Dynamically determine the fields from the person object
-    $: fields = person ? Object.keys(person) : [];
+    // Dynamically determine the fields from the item object
+    $: fields = item ? Object.keys(item) : [];
 </script>
 
 {#if show}
@@ -28,7 +28,7 @@
                     <label class="label" for={field}>
                         <span class="label-text capitalize">{field}:</span>
                     </label>
-                    <input type="text" id={field} class="input input-bordered" bind:value={person[field]}>
+                    <input type="text" id={field} class="input input-bordered" bind:value={item[field]}>
                 </div>
             {/each}
             <div class="modal-action">

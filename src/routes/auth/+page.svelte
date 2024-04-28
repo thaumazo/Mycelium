@@ -16,11 +16,9 @@
 		<div class="card w-96 bg-neutral text-neutral-content">
 			<div class="card-body items-center text-center">
 				<div class="max-w-md">
-					<p>Welcome to the</p>
-					<h1 class="text-5xl font-bold">Community Mycelium</h1>
+					<h1 class="text-5xl font-bold">Reid's Personal Mycelium</h1>
 					<p class="py-6">
-						Please log in to get started <br> Note that only @thaumazo.org emails are accepted at this
-						time
+						Please log in to get started
 					</p>
 					<button
 						on:click={signIn}
