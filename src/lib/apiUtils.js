@@ -14,14 +14,17 @@ export async function loadUtil(fetch, endpoint) {
 }
 
 export const getUtil = async (request, endpoint, supabase, safeGetSession) => {
-  const { session } = await safeGetSession()
+  const { session } = await safeGetSession();
   try {
-    // Only check the API key if the user is not authenticated via normal web session
     if (!session && !await checkApiKey(request, supabase)) {
       throw new Error('Authentication required');
     }
+    console.log(endpoint)
+    let query = supabase.from(endpoint).select("*")
 
-    const { data, error } = await supabase.from(endpoint).select("*");
+    console.log(query)
+
+    const { data, error } = await query;
     if (error) throw new Error(error.message);
     return json(data);
   } catch (error) {
