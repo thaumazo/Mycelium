@@ -12,7 +12,7 @@ export async function loadUtil(fetch, endpoint) {
     return { data: [] };
   }
 }
-
+// can take custom url parameters ex: fetch('/table/people?name=eq.reid+api+test')
 export const getUtil = async (request, endpoint, supabase, safeGetSession) => {
   const { session } = await safeGetSession();
   try {
