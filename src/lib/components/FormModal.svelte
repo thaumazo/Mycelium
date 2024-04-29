@@ -4,11 +4,12 @@
 
     export let show = false;
     export let item = {};
+    export let isNew;
 
     const dispatch = createEventDispatcher();
 
     function save() {
-        dispatch('save', { item });
+        dispatch('save', { item, isNew });
     }
 
     function close() {

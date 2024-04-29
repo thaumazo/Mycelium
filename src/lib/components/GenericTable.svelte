@@ -3,12 +3,24 @@
     export let headers = [];
     import FormModal from '$lib/components/FormModal.svelte';
 
+    import { invalidateAll } from '$app/navigation';
+    
+    import { page } from '$app/stores';
+
     let showModal = false;
     let currentItem = {};
+    let isNew;
 
-    function openModal(isNew = true, item = {}) {
+    const defaultValues = headers.reduce((obj, header) => {
+      obj[header] = null;
+      return obj;
+    }, {});
+    
+
+    function openModal(newItem = true, item = {}) {
         showModal = true;
-        currentItem = isNew ? { name: '' } : item;
+        isNew = newItem;
+        currentItem = newItem ? defaultValues : item;
     }
 
     function closeModal() {
@@ -16,13 +28,40 @@
     }
 
     // Events for adding/updating items
-    import { createEventDispatcher } from 'svelte';
-    const dispatch = createEventDispatcher();
 
-    function handleSave(item) {
-        dispatch('save', { item });
-        closeModal();
-    }
+    async function handleNewRow(item, isNew) {
+        let endpoint = $page.url.pathname.split('/').at(-1);
+
+        console.log(endpoint, item, isNew);
+
+        if(isNew){
+            delete item.id;
+        }
+
+		const response = await fetch(endpoint, {
+			method: isNew ? 'POST' : 'PATCH',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ ...item }) // Example data, adjust as needed
+		});
+
+		if (response.ok) {
+			console.log('Data posted successfully');
+		} else {
+			console.error('Failed to post data', response.error);
+		}
+	}
+
+
+	async function handleSave(event) {
+		console.log('Saving', event.detail.item);
+		showModal = false;
+		handleNewRow(event.detail.item, event.detail.isNew)
+
+		//used to refresh the data on the page. Should be using some form of invalidate('/pathname') but that isn't working. InvalidateAll() is the nuclear option which clears all pages/everything.
+		invalidateAll();
+	}
 </script>
 
 <div class="overflow-x-auto scrollbar-styled m-4 border border-gray-300 rounded-lg">
@@ -56,4 +95,5 @@
 </div>
 
 <button class="btn btn-primary" on:click={() => openModal()}>Add new row</button>
-<FormModal show={showModal} item={currentItem} on:save={handleSave} on:close={closeModal} />
+
+<FormModal show={showModal} item={currentItem} {isNew} on:save={handleSave} on:close={closeModal} />
