@@ -47,7 +47,7 @@
 		});
 
 		if (response.ok) {
-			console.log('Data posted successfully');
+			console.log('Data posted successfully', response);
 		} else {
 			console.error('Failed to post data', response.error);
 		}

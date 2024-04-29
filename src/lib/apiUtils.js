@@ -40,26 +40,24 @@ function removeNullProperties(obj) {
 }
 
 export const postUtil = async (request, endpoint, supabase, safeGetSession) => {
-  
-  const { session } = await safeGetSession()
-  console.log(request, endpoint, supabase, session)
+  const { session } = await safeGetSession();
+  console.log('Request:', request);
   try {
     if (!session && !await checkApiKey(request, supabase)) {
       throw new Error('Authentication required');
     }
     const dataEntry = removeNullProperties(await request.json());
-    let result;
     const { data, error } = await supabase
       .from(endpoint)
       .insert([dataEntry]);
 
-    result = { message: 'New data added successfully!', data };
     if (error) throw new Error(error.message);
+    return json({ message: 'New data added successfully!', data });
   } catch (error) {
-    console.log(error.message);
-    return json({ error: error.message }, { status: 401 });
+    console.log('Server error:', error.message);
+    return json({ error: error.message }, { status: error.status || 500 });
   }
-}
+};
 
 export const patchUtil = async (request, endpoint, supabase, safeGetSession) => {
   const { session } = await safeGetSession()
@@ -76,6 +74,7 @@ export const patchUtil = async (request, endpoint, supabase, safeGetSession) => 
 
     result = { message: 'Data updated successfully!', data };
     if (error) throw new Error(error.message);
+    return json(result)
   } catch (error) {
     console.log(error.message);
     return json({ error: error.message }, { status: 401 });

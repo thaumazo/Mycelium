@@ -1,5 +1,6 @@
 //<!-- +server.js -->
 import { getUtil, postUtil, patchUtil } from '$lib/apiUtils.js';
+import { json } from '@sveltejs/kit'
 
 // All of the functions in this file should be abstracted to a different utils file so they can be used in other routes.
 
@@ -22,7 +23,7 @@ export const POST = async ({ request, url, locals: { supabase, safeGetSession } 
   } catch (error) {
     console.log(error.message)
   }
-  return new Response(data);
+  return data;
 };
 
 export const PATCH = async ({ request, url, locals: { supabase, safeGetSession } }) => {
@@ -33,7 +34,7 @@ export const PATCH = async ({ request, url, locals: { supabase, safeGetSession }
   } catch (error) {
     console.log(error.message)
   }
-  return new Response(data);
+  return data;
 };
 
 
