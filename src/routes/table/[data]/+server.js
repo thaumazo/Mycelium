@@ -1,8 +1,6 @@
 //<!-- +server.js -->
-
+import { getUtil, postUtil, patchUtil } from '$lib/apiUtils.js';
 import { json } from '@sveltejs/kit'
-import { checkApiKey } from '$lib/secretApiUtils';
-import { getUtil } from '$lib/apiUtils.js';
 
 // All of the functions in this file should be abstracted to a different utils file so they can be used in other routes.
 
@@ -16,6 +14,30 @@ export const GET = async ({ request, url, locals: { supabase, safeGetSession } }
   }
   return data;
 };
+
+export const POST = async ({ request, url, locals: { supabase, safeGetSession } }) => {
+  let endpoint = url.toString().split('/').at(-1)
+  let data;
+  try {
+    data = await postUtil(request, endpoint, supabase, safeGetSession)
+  } catch (error) {
+    console.log(error.message)
+  }
+  return data;
+};
+
+export const PATCH = async ({ request, url, locals: { supabase, safeGetSession } }) => {
+  let endpoint = url.toString().split('/').at(-1)
+  let data;
+  try {
+    data = await patchUtil(request, endpoint, supabase, safeGetSession)
+  } catch (error) {
+    console.log(error.message)
+  }
+  return data;
+};
+
+
 
 
 //needs to be updated to accept API keys. 
