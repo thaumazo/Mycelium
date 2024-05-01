@@ -19,10 +19,8 @@ export const getUtil = async (request, endpoint, supabase, safeGetSession) => {
     if (!session && !await checkApiKey(request, supabase)) {
       throw new Error('Authentication required');
     }
-    console.log(endpoint)
+    console.log(request.url);
     let query = supabase.from(endpoint).select("*")
-
-    console.log(query)
 
     const { data, error } = await query;
     if (error) throw new Error(error.message);
@@ -44,7 +42,6 @@ function removeNullProperties(obj) {
 
 export const postUtil = async (request, endpoint, supabase, safeGetSession) => {
   const { session } = await safeGetSession();
-  console.log('Request:', request);
   try {
     if (!session && !await checkApiKey(request, supabase)) {
       throw new Error('Authentication required');

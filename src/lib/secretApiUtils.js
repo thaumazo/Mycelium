@@ -23,7 +23,6 @@ export async function validateApiKey(apiKey) {
         .eq('key', apiKey)
         .single();
 
-    console.log(data);
 
     if (error || !data) {
         console.error('API Key validation error:', error?.message);
