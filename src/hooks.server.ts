@@ -28,17 +28,31 @@ export const handle: Handle = async ({ event, resolve }) => {
    * `getUser` and aborts early if the JWT signature is invalid.
    */
   event.locals.safeGetSession = async () => {
-    const { data: { user }, error } = await event.locals.supabase.auth.getUser()
+    const {
+      data: { session }
+    } = await event.locals.supabase.auth.getSession();
+    if (!session) {
+      return { session: null, user: null };
+    }
 
-    if (error || !user) return { session: null, user: null, profile: null }
+    const {
+      data: { user },
+      error
+    } = await event.locals.supabase.auth.getUser();
+    if (error) {
+      // JWT validation has failed
+      return { session: null, user: null };
+    }
 
-    const { data: { session } } = await event.locals.supabase.auth.getSession()
+    function removeUserFromSession(session) {
+      const { user, ...rest } = session;
+      return rest; // This returns a new session object without the user property
+    }
 
+    const newSession = removeUserFromSession(session);
 
-    
-
-    return { session, user }
-  }
+    return { session: Object.assign({}, newSession, { user }), user };
+  };
 
   return resolve(event, {
     filterSerializedResponseHeaders(name) {
