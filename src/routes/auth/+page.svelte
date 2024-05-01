@@ -1,12 +1,23 @@
 <script>
-	import { Auth } from '@supabase/auth-ui-svelte';
-	import { ThemeSupa } from '@supabase/auth-ui-shared';
-
 	export let data;
+	import { dev } from '$app/environment';
+	import { onMount } from 'svelte';
+
+	let redirect = 'https://reidmycelium.netlify.app/';
+
+	onMount(() => {
+		if (dev) {
+			redirect = 'localhost:5173';
+		}
+		console.log(redirect);
+	});
 
 	async function signIn() {
 		let { _data, _error } = await data.supabase.auth.signInWithOAuth({
-			provider: 'google'
+			provider: 'google',
+			options: {
+				redirectTo: redirect
+			}
 		});
 	}
 </script>
@@ -19,7 +30,7 @@
 					<p>Welcome to the</p>
 					<h1 class="text-5xl font-bold">Community Mycelium</h1>
 					<p class="py-6">
-						Please log in to get started <br> Note that only @thaumazo.org emails are accepted at this
+						Please log in to get started <br /> Note that only @thaumazo.org emails are accepted at this
 						time
 					</p>
 					<button
