@@ -5,10 +5,11 @@ import { json } from '@sveltejs/kit'
 // All of the functions in this file should be abstracted to a different utils file so they can be used in other routes.
 
 export const GET = async ({ request, url, locals: { supabase, safeGetSession } }) => {
-  let endpoint = url.toString().split('/').at(-1)
+  console.log("table/[data] GET")
+  console.log(url);
   let data;
   try {
-    data = await getUtil(request, endpoint, supabase, safeGetSession)
+    data = await getUtil(request, url, supabase, safeGetSession)
   } catch (error) {
     console.log(error.message)
   }
