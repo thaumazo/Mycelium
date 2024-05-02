@@ -1,39 +1,42 @@
 <script>
 	import { onMount } from 'svelte';
 
-    export let data;
+	export let data;
 
-    let habits = [];
+	let habits = [];
 
-    onMount(() => {
-        if (data && data.data) {
-            habits = data.data;
-            console.log(habits);
-        }
-    });
+	onMount(() => {
+		console.log(data.habits);
+		if (data.habits) {
+			habits = data.habits.all;
+		}
+	});
+
+	function isCompleted(habit) {
+		return data.habits.completed.some((entry) => entry.item.id === habit.id);
+	}
 </script>
 
-<style>
-    .habit {
-        padding: 10px;
-        margin: 5px 0;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        background-color: #f9f9f9;
-    }
-</style>
-
 <p>Habits Testing</p>
-{#if habits.length > 0}
-    <ul>
-        {#each habits as habit}
-            <li class="habit">
-                <p><strong>Created At:</strong> {habit.created_at}</p>
-                <p><strong>ID:</strong> {habit.item.id}</p>
-                <p><strong>Name:</strong> {habit.item.name}</p>
-            </li>
-        {/each}
-    </ul>
-{:else}
-    <p>No habits found for today.</p>
-{/if}
+<div>
+	{#if habits.length > 0}
+		<ul>
+			{#each habits as habit}
+				<div class="card w-96 bg-base-100 shadow-xl m-4">
+					<div class="card-body">
+						<h2 class="card-title">{habit.name}</h2>
+						<div class="card-actions">
+							{#if isCompleted(habit)}
+								✅
+							{:else}
+								❌
+							{/if}
+						</div>
+					</div>
+				</div>
+			{/each}
+		</ul>
+	{:else}
+		<p>No habits found for today.</p>
+	{/if}
+</div>

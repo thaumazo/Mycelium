@@ -5,16 +5,19 @@ export async function load({ fetch, url }) {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowUTC = formatDateUTC(tomorrow);
-  const query = `./table/log?select=created_at,item!inner(id,name)&created_at=gte.${todayUTC}&created_at=lt.${tomorrowUTC}`;
-  let data = []
+  const completedQuery = `./table/log?select=created_at,item!inner(id,name)&created_at=gte.${todayUTC}&created_at=lt.${tomorrowUTC}`;
+  const habitsQuery = `./table/items?select=*&tags=cs.{habit}&order=id.asc`;
+
   try {
-    console.log('Habits Load')
-    data = await loadUtil(fetch, query)
-    // data = await loadUtil(fetch, './table/log?select=*') 
+    const [completed, habits] = await Promise.all([
+      loadUtil(fetch, completedQuery),
+      loadUtil(fetch, habitsQuery)
+    ]);
+    return { habits: {all: habits.data, completed: completed.data }};
   } catch (error) {
-    console.log(error.message)
+    console.error('Failed to load data:', error);
+    return { habits: [], completed: [] }; // Provide fallback empty data
   }
-  return data;
 }
 
 function formatDateUTC(date) {
