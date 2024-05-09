@@ -9,9 +9,6 @@ export const GET = async ({ url, locals: { supabase } }) => {
       await supabase.auth.exchangeCodeForSession(code)
   } catch (error) {}
   }
-  else {
-    throw redirect(303, '/auth')
-  }
 
   throw redirect(303, '/')
 
