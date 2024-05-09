@@ -17,6 +17,6 @@
 	});
 </script>
 
-<GenericCard title="Log In">
+
 		<Auth supabaseClient={data.supabase} view="sign_in" showlinks="true" providers={["google"]} redirectTo={redirect}/>
-</GenericCard>
+
