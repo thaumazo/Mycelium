@@ -16,7 +16,7 @@ export const GET = async ({ url, locals: { supabase } }) => {
       throw redirect(303, '/')
     } catch (err) {
       console.error('Unexpected error during the callback:', err)
-      throw error(500, 'Internal server error during authentication callback')
+      throw error(500, err.message)
     }
   } else {
     console.error('Missing auth code in query parameters')
