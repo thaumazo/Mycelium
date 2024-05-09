@@ -7,7 +7,7 @@ export const load = (async ({url, locals: { safeGetSession } }) => {
   console.log(url);
   const code = url.searchParams.get('code')
 
-  if (code) {
+  if (!session && code) {
     throw redirect(303, `/auth/callback?code=${code}`)
   }
   else if (!session && url.pathname!='/auth') {
