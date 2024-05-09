@@ -10,9 +10,10 @@ export const load = (async ({url, locals: { safeGetSession } }) => {
   // if (code) {
   //   throw redirect(303, `/auth/callback?code=${code}`)
   // }
-  // else if (!user && url.pathname!='/auth' && url.pathname!='/auth/callback') {
-  //   throw redirect(303, '/auth')
-  // }
+  // else 
+  if (!user && url.pathname!='/auth' && url.pathname!='/auth/callback') {
+    throw redirect(303, '/auth')
+  }
 
 
   return {
