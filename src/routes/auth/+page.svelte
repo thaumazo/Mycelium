@@ -11,12 +11,12 @@
 
 	onMount(() => {
 		if (dev) {
-			redirect = 'https://localhost:5173';
+			redirect = 'https://localhost:5173/auth/callback';
 		}
 		console.log(redirect);
 	});
 </script>
 
 <GenericCard title="Log In">
-		<Auth supabaseClient={data.supabase} view="sign_in" showlinks="true" providers={["google"]}/>
+		<Auth supabaseClient={data.supabase} view="sign_in" showlinks="true" providers={["google"]} redirectTo{redirect}/>
 </GenericCard>
