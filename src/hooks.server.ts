@@ -7,36 +7,28 @@ import jwt from 'jsonwebtoken';
 import { validateApiKey } from '$lib/secretApiUtils';
 
 export const handle: Handle = async ({ event, resolve }) => {
-  event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY,{
-    cookies: {
-      get: (key) => event.cookies.get(key),
-      /**
-       * Note: You have to add the `path` variable to the
-       * set and remove method due to sveltekit's cookie APIer
-       * requiring this to be set, setting the path to `/`
-       * will replicate previous/standard behaviour (https://kit.svelte.dev/docs/types#public-types-cookies)
-       */
-      set: (key, value, options) => {
-        event.cookies.set(key, value, { ...options, path: '/' })
-      },
-      remove: (key, options) => {
-        event.cookies.delete(key, { ...options, path: '/' })
-      },
-    },
-  })
+  let token;
+    const apiKey = event.request.headers.get('x-api-key');
 
-  const apiKey = event.request.headers.get('x-api-key');
-  if (apiKey) {
-    const isValid = await validateApiKey(apiKey);  // You need to implement this function
-    if (isValid) {
-      const token = jwt.sign({role: 'api_user'}, SECRET_JWT_SECRET, { expiresIn: '1h' });
-      event.cookies.set('auth_token', token, { path: '/', httpOnly: true });
-      await event.locals.supabase.auth.setAuth(token);  // Set the JWT for all Supabase requests
-      console.log(event.locals.supabase);
-    } else {
-      throw new Error('Invalid API Key');
+    if (apiKey) {
+        const isValid = await validateApiKey(apiKey);
+        if (isValid) {
+            token = jwt.sign({ role: 'api_user' }, SECRET_JWT_SECRET, { expiresIn: '1h' });  // Sign a JWT for the valid API key
+            event.cookies.set('auth_token', token, { path: '/', httpOnly: true });  // Set the JWT in a secure cookie
+        } else {
+            throw new Error('Invalid API Key');  // Throw an error if the API key is invalid
+        }
     }
-  }
+
+    // Whether authenticated or not, create the client with proper cookie handling
+    event.locals.supabase = createClient(PUBLIC_SUPABASE_URL, apiKey ? PUBLIC_SUPABASE_ANON_KEY : PUBLIC_SUPABASE_ANON_KEY, {
+        headers: apiKey ? { Authorization: `Bearer ${token}` } : {},
+        cookies: {
+            get: (key) => event.cookies.get(key),
+            set: (key, value, options) => event.cookies.set(key, value, { ...options, path: '/' }),
+            remove: (key, options) => event.cookies.delete(key, { ...options, path: '/' })
+        }
+    });
 
   /**
    * Unlike `supabase.auth.getSession`, which is unsafe on the server because it
