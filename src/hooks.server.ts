@@ -1,6 +1,7 @@
 // src/hooks.server.ts
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY} from '$env/static/public'
 import {SECRET_JWT_SECRET} from '$env/static/private'
+import { SignJWT, jwtVerify } from 'jose'
 import { createServerClient } from '@supabase/ssr'
 import type { Handle } from '@sveltejs/kit'
 import jwt from 'jsonwebtoken';
@@ -16,14 +17,18 @@ export const handle: Handle = async ({ event, resolve }) => {
     if (apiKey) {
         const isValid = await validateApiKey(apiKey);
         if (isValid) {
-            const token = jwt.sign({ role: 'api_user' }, SECRET_JWT_SECRET, { expiresIn: '1h' });
+          const token = await new SignJWT({role: 'api_user'})
+          .setIssuedAt()
+          .setExpirationTime('2h')
+          .sign(new TextEncoder().encode(SECRET_JWT_SECRET))
             event.cookies.set('auth_token', token, { path: '/', httpOnly: true });
 
             // Create the client with the JWT if the API key is valid
             supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
-                headers: {
+                global:{
+                  headers: {
                     Authorization: `Bearer ${token}`
-                }
+                }}
             });
             console.log('api-key supabase')
             console.log(supabase)
