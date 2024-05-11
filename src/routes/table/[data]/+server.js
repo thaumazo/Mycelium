@@ -7,6 +7,7 @@ import { json } from '@sveltejs/kit'
 export const GET = async ({ request, url, locals: { supabase, safeGetSession } }) => {
   console.log("table/[data] GET")
   console.log(url);
+  console.log(supabase)
   let data;
   try {
     data = await getUtil(request, url, supabase, safeGetSession)
