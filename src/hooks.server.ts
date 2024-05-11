@@ -1,5 +1,6 @@
 // src/hooks.server.ts
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, SECRET_JWT_SECRET } from '$env/static/public'
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY} from '$env/static/public'
+import {SECRET_JWT_SECRET} from '$env/static/private'
 import { createServerClient } from '@supabase/ssr'
 import type { Handle } from '@sveltejs/kit'
 import jwt from 'jsonwebtoken';
@@ -11,7 +12,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       get: (key) => event.cookies.get(key),
       /**
        * Note: You have to add the `path` variable to the
-       * set and remove method due to sveltekit's cookie API
+       * set and remove method due to sveltekit's cookie APIer
        * requiring this to be set, setting the path to `/`
        * will replicate previous/standard behaviour (https://kit.svelte.dev/docs/types#public-types-cookies)
        */
