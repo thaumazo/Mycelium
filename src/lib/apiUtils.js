@@ -19,6 +19,7 @@ export async function loadUtil(fetch, endpoint) {
 // can take custom url parameters ex: fetch('/table/people?name=eq.reid+api+test')
 export const getUtil = async (request, url, supabase, safeGetSession) => {
   console.log("getUtil")
+  console.log(request)
   console.log(supabase)
   const { session } = await safeGetSession();
   try {
