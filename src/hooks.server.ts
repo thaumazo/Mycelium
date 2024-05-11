@@ -16,7 +16,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   if (apiKey) {
     const isValid = await validateApiKey(apiKey);
     if (isValid) {
-      const token = jwt.sign({ role: 'authenticated' }, SECRET_JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ role: 'api_user' }, SECRET_JWT_SECRET, { expiresIn: '1h' });
       event.cookies.set('auth_token', token, { path: '/', httpOnly: true });
 
       // Create the client with the JWT if the API key is valid
