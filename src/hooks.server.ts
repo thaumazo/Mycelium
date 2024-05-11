@@ -21,7 +21,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
 
     // Whether authenticated or not, create the client with proper cookie handling
-    event.locals.supabase = createClient(PUBLIC_SUPABASE_URL, apiKey ? PUBLIC_SUPABASE_ANON_KEY : PUBLIC_SUPABASE_ANON_KEY, {
+    event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, apiKey ? PUBLIC_SUPABASE_ANON_KEY : PUBLIC_SUPABASE_ANON_KEY, {
         headers: apiKey ? { Authorization: `Bearer ${token}` } : {},
         cookies: {
             get: (key) => event.cookies.get(key),
