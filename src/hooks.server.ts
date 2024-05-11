@@ -1,7 +1,6 @@
 // src/hooks.server.ts
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY} from '$env/static/public'
-import {SECRET_JWT_SECRET} from '$env/static/private'
-import { SignJWT, jwtVerify } from 'jose'
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
+import { SECRET_JWT_SECRET } from '$env/static/private'
 import { createServerClient } from '@supabase/ssr'
 import type { Handle } from '@sveltejs/kit'
 import jwt from 'jsonwebtoken';
@@ -12,46 +11,44 @@ export const handle: Handle = async ({ event, resolve }) => {
   console.log('hooks')
   console.log(event.request)
   const apiKey = event.request.headers.get('x-api-key');
-    let supabase;
+  let supabase;
 
-    if (apiKey) {
-        const isValid = await validateApiKey(apiKey);
-        if (isValid) {
-          const token = await new SignJWT({role: 'api_user'})
-          .setIssuedAt()
-          .setExpirationTime('2h')
-          .sign(new TextEncoder().encode(SECRET_JWT_SECRET))
-            event.cookies.set('auth_token', token, { path: '/', httpOnly: true });
+  if (apiKey) {
+    const isValid = await validateApiKey(apiKey);
+    if (isValid) {
+      const token = jwt.sign({ role: 'api_user' }, SECRET_JWT_SECRET, { expiresIn: '1h' });
+      event.cookies.set('auth_token', token, { path: '/', httpOnly: true });
 
-            // Create the client with the JWT if the API key is valid
-            supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
-                global:{
-                  headers: {
-                    Authorization: `Bearer ${token}`
-                }}
-            });
-            console.log('api-key supabase')
-            console.log(supabase)
-        } else {
-            throw new Error('Invalid API Key');
+      // Create the client with the JWT if the API key is valid
+      supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
+      });
+      console.log('api-key supabase')
+      console.log(supabase)
     } else {
-        // Use the server-side client for users without an API key
-        supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
-            cookies: {
-                get: (key) => event.cookies.get(key),
-                set: (key, value, options) => event.cookies.set(key, value, { ...options, path: '/' }),
-                remove: (key, options) => event.cookies.delete(key, { ...options, path: '/' })
-            }
-        });
-        console.log('server supabase')
-        console.log(supabase)
+      throw new Error('Invalid API Key');
     }
-
-    // Attach the supabase client to event.locals for use in endpoints and other hooks
-    event.locals.supabase = supabase;
-    console.log('locals supabase')
+  } else {
+    // Use the server-side client for users without an API key
+    supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
+      cookies: {
+        get: (key) => event.cookies.get(key),
+        set: (key, value, options) => event.cookies.set(key, value, { ...options, path: '/' }),
+        remove: (key, options) => event.cookies.delete(key, { ...options, path: '/' })
+      }
+    });
+    console.log('server supabase')
     console.log(supabase)
+  }
+
+  // Attach the supabase client to event.locals for use in endpoints and other hooks
+  event.locals.supabase = supabase;
+  console.log('locals supabase')
+  console.log(supabase)
 
 
   /**
@@ -67,7 +64,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     const { data: { session } } = await event.locals.supabase.auth.getSession()
 
 
-    
+
 
     return { session, user }
   }
