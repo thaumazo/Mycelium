@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export const handle: Handle = async ({ event, resolve }) => {
   console.log('hooks')
+  console.log(event.request)
   const apiKey = event.request.headers.get('x-api-key');
     let supabase;
 
