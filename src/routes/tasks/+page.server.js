@@ -13,6 +13,9 @@ export async function load({ fetch }) {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
+    default: async (event) => {
+        return {success: true}
+    }, 
     edit: async ({ request, locals }) => {
         const form = await request.formData();
         const id = form.get('id');
