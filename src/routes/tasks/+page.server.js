@@ -11,10 +11,11 @@ export async function load({ fetch }) {
     return { tasks: data };
 }
 
+
 /** @type {import('./$types').Actions} */
 export const actions = {
-    default: async (event) => {
-        return {success: true}
+    test: async (event) => {
+        return {success: true, data: "data"}
     }, 
     edit: async ({ request, locals }) => {
         const form = await request.formData();
