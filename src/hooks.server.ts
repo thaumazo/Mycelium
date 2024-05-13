@@ -9,7 +9,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export const handle: Handle = async ({ event, resolve }) => {
   console.log('hooks')
-  console.log(event.request)
+  // console.log(event.request)
   const apiKey = event.request.headers.get('x-api-key');
   let supabase;
 
@@ -27,8 +27,8 @@ export const handle: Handle = async ({ event, resolve }) => {
           }
         }
       });
-      console.log('api-key supabase')
-      console.log(supabase)
+      // console.log('api-key supabase')
+      // console.log(supabase)
     } else {
       throw new Error('Invalid API Key');
     }
@@ -41,14 +41,14 @@ export const handle: Handle = async ({ event, resolve }) => {
         remove: (key, options) => event.cookies.delete(key, { ...options, path: '/' })
       }
     });
-    console.log('server supabase')
-    console.log(supabase)
+    // console.log('server supabase')
+    // console.log(supabase)
   }
 
   // Attach the supabase client to event.locals for use in endpoints and other hooks
   event.locals.supabase = supabase;
-  console.log('locals supabase')
-  console.log(supabase)
+  // console.log('locals supabase')
+  // console.log(supabase)
 
 
   /**

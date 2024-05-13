@@ -19,23 +19,19 @@ export async function loadUtil(fetch, endpoint) {
 // can take custom url parameters ex: fetch('/table/people?name=eq.reid+api+test')
 export const getUtil = async (request, url, supabase, safeGetSession) => {
   console.log("getUtil")
-  console.log(request)
-  console.log(supabase)
   const { session } = await safeGetSession();
   try {
     if (!session && !await checkApiKey(request, supabase)) {
       throw new Error('Authentication required');
     }
-    console.log(url)
+   
     let endpoint = url.pathname.split('/').at(-1);
-    console.log(endpoint)
     let searchParams = url.searchParams
     let query = supabase.from(endpoint).select(searchParams.get("select"));
 
     for (const [key, value] of searchParams) {
       query.url.searchParams.append(key, value);
     }
-    console.log(query.url.href);
     const { data, error } = await query;
     if (error) console.log(error);
     console.log(data)
@@ -50,7 +46,7 @@ function removeNullProperties(obj) {
   return Object.keys(obj)
     .filter(key => obj[key] !== null)  // Keep only keys where value is not null
     .reduce((acc, key) => {
-      acc[key] = obj[key];  // Assign each non-null value back to a new object
+      acc[key] = obj[key];  // Assign each bon-null value back to a new object
       return acc;
     }, {});
 }
