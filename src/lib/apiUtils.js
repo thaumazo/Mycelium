@@ -1,14 +1,20 @@
 import { json } from '@sveltejs/kit'
 import { checkApiKey } from '$lib/secretApiUtils';
 
+
 // All of the functions in this file should be abstracted to a different utils file so they can be used in other routes.
-export async function loadUtil({fetch, url}) {
+export async function loadUtil({url, fetch}, table, filters) {
   console.log("loadUtil")
-  console.log(url)
-  let endpoint = url.pathname.split('/').at(-1) + url.search;
-  console.log(endpoint);
+  let newUrl = new URL(url);
+
+  for (const [key, value] of Object.entries(filters)) {
+    newUrl.searchParams.append(key, value);
+  }
+
+  console.log(newUrl);
+
   try {
-    let res = await fetch(`./${endpoint}`);
+    let res = await fetch(`./${table + newUrl.search}`);
     let data = await res.json();
     return { data };
   } catch (error) {
@@ -19,21 +25,22 @@ export async function loadUtil({fetch, url}) {
 
 
 // can take custom url parameters ex: fetch('/table/people?name=eq.reid+api+test')
-export const GET = async ({request, locals: {supabase}}) => {
+export const GET = async ({request, url: oldURL, locals: {supabase}}) => {
   console.log("getUtil")
   try {
     // if (!session && !await checkApiKey(request, supabase)) {
     //   throw new Error('Authentication required');
     // }
     let url = new URL(request.url)
+    console.log(oldURL)
     let endpoint = url.pathname.split('/').at(-1);
     let searchParams = url.searchParams
     let query = supabase.from(endpoint).select(searchParams.get("select"));
 
-    for (const [key, value] of searchParams) {
-      query.url.searchParams.append(key, value);
-    }
-    
+    query.url.search = url.searchParams;
+
+    console.log(query);
+
     const { data, error } = await query;
     if (error) console.log(error);
     return json(data);
@@ -92,32 +99,3 @@ export const PATCH = async (request, endpoint, supabase, safeGetSession) => {
     return json({ error: error.message }, { status: 401 });
   }
 }
-// export async function POST({ request }) {
-//   try {
-//     const dataEntry = await request.json();
-//     let result;
-
-//     if (dataEntry.id) {
-//       // If an ID is present, update the existing record
-//       const { data, error } = await supabase
-//         .from('people')
-//         .update(dataEntry)
-//         .match({ id: dataEntry.id });  // Ensure to match the correct record by ID
-
-//       result = { message: 'Community member updated successfully!', data };
-//       if (error) throw new Error(error.message);
-//     } else {
-//       // No ID, insert a new record
-//       const { data, error } = await supabase
-//         .from('people')
-//         .insert([dataEntry]);
-
-//       result = { message: 'New community member added successfully!', data };
-//       if (error) throw new Error(error.message);
-//     }
-
-//     return json(result, { status: 200 });
-//   } catch (error) {
-//     return json({ error: error.message }, { status: 500 });
-//   }
-// }

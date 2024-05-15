@@ -1,64 +1,13 @@
-//<!-- +server.js -->
-import * as utils from '$lib/apiUtils.js';
-
-// All of the functions in this file should be abstracted to a different utils file so they can be used in other routes.
+import * as apiUtils from '$lib/apiUtils.js';
 
 export const GET = async (event) => {
-  return await utils.GET(event);
+  return apiUtils.GET(event);
 };
 
-export const POST = async ({ request, url, locals: { supabase, safeGetSession } }) => {
-  let endpoint = url.toString().split('/').at(-1)
-  let data;
-  try {
-    data = await postUtil(request, endpoint, supabase, safeGetSession)
-  } catch (error) {
-    console.log(error.message)
-  }
-  return data;
+export const POST = async (event) => {
+  return apiUtils.POST(event);
 };
 
-export const PATCH = async ({ request, url, locals: { supabase, safeGetSession } }) => {
-  let endpoint = url.toString().split('/').at(-1)
-  let data;
-  try {
-    data = await patchUtil(request, endpoint, supabase, safeGetSession)
-  } catch (error) {
-    console.log(error.message)
-  }
-  return data;
+export const PATCH = async (event) => {
+  return apiUtils.POST(event);
 };
-
-
-
-
-//needs to be updated to accept API keys. 
-// export async function POST({ request }) {
-//   try {
-//     const dataEntry = await request.json();
-//     let result;
-
-//     if (dataEntry.id) {
-//       // If an ID is present, update the existing record
-//       const { data, error } = await supabase
-//         .from('people')
-//         .update(dataEntry)
-//         .match({ id: dataEntry.id });  // Ensure to match the correct record by ID
-
-//       result = { message: 'Community member updated successfully!', data };
-//       if (error) throw new Error(error.message);
-//     } else {
-//       // No ID, insert a new record
-//       const { data, error } = await supabase
-//         .from('people')
-//         .insert([dataEntry]);
-
-//       result = { message: 'New community member added successfully!', data };
-//       if (error) throw new Error(error.message);
-//     }
-
-//     return json(result, { status: 200 });
-//   } catch (error) {
-//     return json({ error: error.message }, { status: 500 });
-//   }
-// }

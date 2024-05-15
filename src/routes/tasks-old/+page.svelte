@@ -5,14 +5,14 @@
     export let data;
 
     onMount(()=> {
-        console.log(data.tasks);
+        console.log(data);
     })
 
 </script>
 
 <h1>Tasks</h1>
-{#if data.tasks}
-    {#each data.tasks.data as task}
+{#if data.data}
+    {#each data.data as task}
         <TaskItem {task} />
     {/each}
 {/if}
