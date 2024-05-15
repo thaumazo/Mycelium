@@ -1,31 +1,43 @@
 import { json } from '@sveltejs/kit'
 import { checkApiKey } from '$lib/secretApiUtils';
 
+
 // All of the functions in this file should be abstracted to a different utils file so they can be used in other routes.
-export async function loadUtil(fetch, endpoint) {
+export async function loadUtil({url, fetch}, table, filters) {
+  console.log("loadUtil")
+  let newUrl = new URL(url);
+
+  for (const [key, value] of Object.entries(filters)) {
+    newUrl.searchParams.append(key, value);
+  }
+
+  console.log(newUrl);
+
   try {
-    let res = await fetch(`./${endpoint}`);
+    let res = await fetch(`./${table + newUrl.search}`);
+    //may want to update this so that its doing absolute and not relative URLs
     let data = await res.json();
     return { data };
   } catch (error) {
-    console.error(error.message);
-    return { data: [] };
+      console.error(error.message);
+    return { data: [], error: error.message };
   }
 }
-// can take custom url parameters ex: fetch('/table/people?name=eq.reid+api+test')
-export const getUtil = async (request, endpoint, supabase, safeGetSession) => {
-  const { session } = await safeGetSession();
-  try {
-    if (!session && !await checkApiKey(request, supabase)) {
-      throw new Error('Authentication required');
-    }
-    console.log(endpoint)
-    let query = supabase.from(endpoint).select("*")
 
-    console.log(query)
+
+// can take custom url parameters ex: fetch('/table/people?name=eq.reid+api+test')
+export const GET = async ({request, locals: {supabase}}) => {
+  console.log("getUtil")
+  try {
+    let url = new URL(request.url)
+    let endpoint = url.pathname.split('/').at(-1);
+    let searchParams = url.searchParams
+    let query = supabase.from(endpoint).select(searchParams.get("select"));
+
+    query.url.search = url.searchParams;
 
     const { data, error } = await query;
-    if (error) throw new Error(error.message);
+    if (error) console.log(error);
     return json(data);
   } catch (error) {
     console.log(error.message);
@@ -35,23 +47,22 @@ export const getUtil = async (request, endpoint, supabase, safeGetSession) => {
 
 function removeNullProperties(obj) {
   return Object.keys(obj)
-      .filter(key => obj[key] !== null)  // Keep only keys where value is not null
-      .reduce((acc, key) => {
-          acc[key] = obj[key];  // Assign each non-null value back to a new object
-          return acc;
-      }, {});
+    .filter(key => obj[key] !== null)  // Keep only keys where value is not null
+    .reduce((acc, key) => {
+      acc[key] = obj[key];  // Assign each bon-null value back to a new object
+      return acc;
+    }, {});
 }
 
-export const postUtil = async (request, endpoint, supabase, safeGetSession) => {
-  const { session } = await safeGetSession();
-  console.log('Request:', request);
+export const POST = async ({request, locals: {supabase, safeGetSession}}) => {
+  console.log("POST")
   try {
-    if (!session && !await checkApiKey(request, supabase)) {
-      throw new Error('Authentication required');
-    }
+    let url = new URL(request.url)
+    let table = url.pathname.split('/').at(-1);
+    //never have more than 1 'await request.json()' it will throw an 'unusable body' error
     const dataEntry = removeNullProperties(await request.json());
     const { data, error } = await supabase
-      .from(endpoint)
+      .from(table)
       .insert([dataEntry]);
 
     if (error) throw new Error(error.message);
@@ -62,18 +73,18 @@ export const postUtil = async (request, endpoint, supabase, safeGetSession) => {
   }
 };
 
-export const patchUtil = async (request, endpoint, supabase, safeGetSession) => {
-  const { session } = await safeGetSession()
+export const PATCH = async ({request, locals: {supabase, safeGetSession}}) => {
+  console.log("PATCH")
   try {
-    if (!session && !await checkApiKey(request, supabase)) {
-      throw new Error('Authentication required');
-    }
+    let url = new URL(request.url)
+    let table = url.pathname.split('/').at(-1);
+    //never have more than 1 'await request.json()' it will throw an 'unusable body' error
     const dataEntry = removeNullProperties(await request.json());
     let result;
     const { data, error } = await supabase
-            .from(endpoint)
-            .update(dataEntry)
-            .match({ id: dataEntry.id });
+      .from(table)
+      .update({...dataEntry})
+      .match({ id: dataEntry.id });
 
     result = { message: 'Data updated successfully!', data };
     if (error) throw new Error(error.message);
@@ -83,32 +94,24 @@ export const patchUtil = async (request, endpoint, supabase, safeGetSession) => 
     return json({ error: error.message }, { status: 401 });
   }
 }
-// export async function POST({ request }) {
-//   try {
-//     const dataEntry = await request.json();
-//     let result;
 
-//     if (dataEntry.id) {
-//       // If an ID is present, update the existing record
-//       const { data, error } = await supabase
-//         .from('people')
-//         .update(dataEntry)
-//         .match({ id: dataEntry.id });  // Ensure to match the correct record by ID
+export const DELETE = async ({ request, locals: { supabase, safeGetSession } }) => {
+  console.log("DELETE");
+  try {
+    let url = new URL(request.url);
+    let table = url.pathname.split('/').at(-1);
+    const { id } = await request.json();
 
-//       result = { message: 'Community member updated successfully!', data };
-//       if (error) throw new Error(error.message);
-//     } else {
-//       // No ID, insert a new record
-//       const { data, error } = await supabase
-//         .from('people')
-//         .insert([dataEntry]);
+    const { data, error } = await supabase
+      .from(table)
+      .delete()
+      .match({ id });
 
-//       result = { message: 'New community member added successfully!', data };
-//       if (error) throw new Error(error.message);
-//     }
+    if (error) throw new Error(error.message);
 
-//     return json(result, { status: 200 });
-//   } catch (error) {
-//     return json({ error: error.message }, { status: 500 });
-//   }
-// }
+    return json({ message: 'Data deleted successfully!', data });
+  } catch (error) {
+    console.log(error.message);
+    return json({ error: error.message }, { status: 401 });
+  }
+};

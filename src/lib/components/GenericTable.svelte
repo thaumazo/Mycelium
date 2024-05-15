@@ -30,28 +30,35 @@
     // Events for adding/updating items
 
     async function handleNewRow(item, isNew) {
-        let endpoint = $page.url.pathname.split('/').at(-1);
+    let endpoint = $page.url.pathname.split('/').at(-1);
 
-        console.log(endpoint, item, isNew);
+    console.log(endpoint, item, isNew);
+    if (isNew) {
+        delete item.id;
+    }
 
-        if(isNew){
-            delete item.id;
+    try {
+        console.log(endpoint, item)
+
+        const response = await fetch(`./${endpoint}`, {
+            method: isNew ? 'POST' : 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({...item})
+        });
+
+        if (response.ok) {
+            console.log('Data posted successfully', response);
+        } else {
+            const errorData = await response.json();
+            console.error('Failed to post data', errorData);
         }
+    } catch (error) {
+        console.error('Error posting data', error);
+    }
+}
 
-		const response = await fetch(endpoint, {
-			method: isNew ? 'POST' : 'PATCH',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ ...item }) // Example data, adjust as needed
-		});
-
-		if (response.ok) {
-			console.log('Data posted successfully', response);
-		} else {
-			console.error('Failed to post data', response.error);
-		}
-	}
 
 
 	async function handleSave(event) {

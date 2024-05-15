@@ -63,3 +63,12 @@ It is recommended to use VS code as your main code editor for this project, whic
 would return the data seen if a user goes to https://mycelium.thaumazo.org/people. It does this without needing to rewrite the code for each use case. 
 Ideally, search params and filters will also be added to url so a user can create a query using the web GUI and then just copy and paste the url into a fetch request ex:
 ```fetch(mycelium.thaumazo.org/people?organization="thaumazo"&name="Reid")``` 
+
+
+# How to make the api access
+Things that I did
+- update hooks to validate jwt keys
+- add jwt env variable
+  - add that to netlify
+- give service role ability to sign api_users (GRANT api_user TO service_role;)
+- give api_users access to public schema (GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA "public" TO api_user;)
