@@ -13,3 +13,7 @@ export const PATCH = async (event) => {
     console.log(event.request.body);
     return apiUtils.PATCH(event);
 };
+
+export const DELETE = async(event)=>{
+    return apiUtils.DELETE(event);
+}

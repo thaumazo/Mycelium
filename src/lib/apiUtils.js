@@ -94,3 +94,24 @@ export const PATCH = async ({request, locals: {supabase, safeGetSession}}) => {
     return json({ error: error.message }, { status: 401 });
   }
 }
+
+export const DELETE = async ({ request, locals: { supabase, safeGetSession } }) => {
+  console.log("DELETE");
+  try {
+    let url = new URL(request.url);
+    let table = url.pathname.split('/').at(-1);
+    const { id } = await request.json();
+
+    const { data, error } = await supabase
+      .from(table)
+      .delete()
+      .match({ id });
+
+    if (error) throw new Error(error.message);
+
+    return json({ message: 'Data deleted successfully!', data });
+  } catch (error) {
+    console.log(error.message);
+    return json({ error: error.message }, { status: 401 });
+  }
+};

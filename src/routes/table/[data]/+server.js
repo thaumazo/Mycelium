@@ -11,3 +11,7 @@ export const POST = async (event) => {
 export const PATCH = async (event) => {
   return apiUtils.PATCH(event);
 };
+
+export const DELETE = async(event)=>{
+  return apiUtils.DELETE(event);
+}
