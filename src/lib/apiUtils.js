@@ -15,31 +15,26 @@ export async function loadUtil({url, fetch}, table, filters) {
 
   try {
     let res = await fetch(`./${table + newUrl.search}`);
+    //may want to update this so that its doing absolute and not relative URLs
     let data = await res.json();
     return { data };
   } catch (error) {
-    console.error(error.message);
-    return { data: [] };
+      console.error(error.message);
+    return { data: [], error: error.message };
   }
 }
 
 
 // can take custom url parameters ex: fetch('/table/people?name=eq.reid+api+test')
-export const GET = async ({request, url: oldURL, locals: {supabase}}) => {
+export const GET = async ({request, locals: {supabase}}) => {
   console.log("getUtil")
   try {
-    // if (!session && !await checkApiKey(request, supabase)) {
-    //   throw new Error('Authentication required');
-    // }
     let url = new URL(request.url)
-    console.log(oldURL)
     let endpoint = url.pathname.split('/').at(-1);
     let searchParams = url.searchParams
     let query = supabase.from(endpoint).select(searchParams.get("select"));
 
     query.url.search = url.searchParams;
-
-    console.log(query);
 
     const { data, error } = await query;
     if (error) console.log(error);
@@ -59,12 +54,8 @@ function removeNullProperties(obj) {
     }, {});
 }
 
-export const POST = async (request, endpoint, supabase, safeGetSession) => {
-  const { session } = await safeGetSession();
+export const POST = async ({request, endpoint, locals: {supabase, safeGetSession}}) => {
   try {
-    // if (!session && !await checkApiKey(request, supabase)) {
-    //   throw new Error('Authentication required');
-    // }
     const dataEntry = removeNullProperties(await request.json());
     const { data, error } = await supabase
       .from(endpoint)
@@ -78,12 +69,8 @@ export const POST = async (request, endpoint, supabase, safeGetSession) => {
   }
 };
 
-export const PATCH = async (request, endpoint, supabase, safeGetSession) => {
-  const { session } = await safeGetSession()
+export const PATCH = async ({request, endpoint, locals: {supabase, safeGetSession}}) => {
   try {
-    if (!session && !await checkApiKey(request, supabase)) {
-      throw new Error('Authentication required');
-    }
     const dataEntry = removeNullProperties(await request.json());
     let result;
     const { data, error } = await supabase
