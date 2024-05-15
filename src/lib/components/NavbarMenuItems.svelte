@@ -1,4 +1,4 @@
-<li><a href="/timeline">Account</a></li>
+<li><a href="/account">Account</a></li>
 <li>
 	<details>
 		<summary>Data Tables</summary>
