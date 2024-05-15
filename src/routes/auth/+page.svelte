@@ -5,7 +5,8 @@
 	import { onMount } from 'svelte';
 	import { dev } from '$app/environment';
 	
-	let redirect = 'https://reidmycelium.netlify.app/auth/callback'
+
+	let redirect = 'https://mycelium-thaumazo.netlify.app/auth/callback'
 
 	export let data;
 
