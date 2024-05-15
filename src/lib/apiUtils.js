@@ -2,9 +2,11 @@ import { json } from '@sveltejs/kit'
 import { checkApiKey } from '$lib/secretApiUtils';
 
 // All of the functions in this file should be abstracted to a different utils file so they can be used in other routes.
-export async function loadUtil(fetch, endpoint) {
+export async function loadUtil({fetch, url}) {
   console.log("loadUtil")
-  console.log(endpoint)
+  console.log(url)
+  let endpoint = url.pathname.split('/').at(-1) + url.search;
+  console.log(endpoint);
   try {
     let res = await fetch(`./${endpoint}`);
     let data = await res.json();
@@ -17,14 +19,13 @@ export async function loadUtil(fetch, endpoint) {
 
 
 // can take custom url parameters ex: fetch('/table/people?name=eq.reid+api+test')
-export const getUtil = async (request, url, supabase, safeGetSession) => {
+export const GET = async ({request, locals: {supabase}}) => {
   console.log("getUtil")
-  const { session } = await safeGetSession();
   try {
-    if (!session && !await checkApiKey(request, supabase)) {
-      throw new Error('Authentication required');
-    }
-   
+    // if (!session && !await checkApiKey(request, supabase)) {
+    //   throw new Error('Authentication required');
+    // }
+    let url = new URL(request.url)
     let endpoint = url.pathname.split('/').at(-1);
     let searchParams = url.searchParams
     let query = supabase.from(endpoint).select(searchParams.get("select"));
@@ -32,9 +33,9 @@ export const getUtil = async (request, url, supabase, safeGetSession) => {
     for (const [key, value] of searchParams) {
       query.url.searchParams.append(key, value);
     }
+    
     const { data, error } = await query;
     if (error) console.log(error);
-    console.log(data)
     return json(data);
   } catch (error) {
     console.log(error.message);
@@ -51,12 +52,12 @@ function removeNullProperties(obj) {
     }, {});
 }
 
-export const postUtil = async (request, endpoint, supabase, safeGetSession) => {
+export const POST = async (request, endpoint, supabase, safeGetSession) => {
   const { session } = await safeGetSession();
   try {
-    if (!session && !await checkApiKey(request, supabase)) {
-      throw new Error('Authentication required');
-    }
+    // if (!session && !await checkApiKey(request, supabase)) {
+    //   throw new Error('Authentication required');
+    // }
     const dataEntry = removeNullProperties(await request.json());
     const { data, error } = await supabase
       .from(endpoint)
@@ -70,7 +71,7 @@ export const postUtil = async (request, endpoint, supabase, safeGetSession) => {
   }
 };
 
-export const patchUtil = async (request, endpoint, supabase, safeGetSession) => {
+export const PATCH = async (request, endpoint, supabase, safeGetSession) => {
   const { session } = await safeGetSession()
   try {
     if (!session && !await checkApiKey(request, supabase)) {

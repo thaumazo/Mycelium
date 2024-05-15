@@ -1,20 +1,10 @@
 //<!-- +server.js -->
-import { getUtil, postUtil, patchUtil } from '$lib/apiUtils.js';
-import { json } from '@sveltejs/kit'
+import * as utils from '$lib/apiUtils.js';
 
 // All of the functions in this file should be abstracted to a different utils file so they can be used in other routes.
 
-export const GET = async ({ request, url, locals: { supabase, safeGetSession } }) => {
-  console.log("table/[data] GET")
-  console.log(url);
-  console.log(supabase)
-  let data;
-  try {
-    data = await getUtil(request, url, supabase, safeGetSession)
-  } catch (error) {
-    console.log(error.message)
-  }
-  return data;
+export const GET = async (event) => {
+  return await utils.GET(event);
 };
 
 export const POST = async ({ request, url, locals: { supabase, safeGetSession } }) => {

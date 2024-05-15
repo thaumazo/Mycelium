@@ -4,7 +4,7 @@ export async function load({ fetch }) {
     let data = []
     try {
         data = await loadUtil(fetch, './table/tasks?select=*')
-        console.log(data);
+        // console.log(data);
     } catch (error) {
         console.log(error.message)
     }
