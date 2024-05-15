@@ -54,11 +54,15 @@ function removeNullProperties(obj) {
     }, {});
 }
 
-export const POST = async ({request, endpoint, locals: {supabase, safeGetSession}}) => {
+export const POST = async ({request, locals: {supabase, safeGetSession}}) => {
+  console.log("POST")
   try {
+    let url = new URL(request.url)
+    let table = url.pathname.split('/').at(-1);
+    //never have more than 1 'await request.json()' it will throw an 'unusable body' error
     const dataEntry = removeNullProperties(await request.json());
     const { data, error } = await supabase
-      .from(endpoint)
+      .from(table)
       .insert([dataEntry]);
 
     if (error) throw new Error(error.message);
@@ -69,13 +73,17 @@ export const POST = async ({request, endpoint, locals: {supabase, safeGetSession
   }
 };
 
-export const PATCH = async ({request, endpoint, locals: {supabase, safeGetSession}}) => {
+export const PATCH = async ({request, locals: {supabase, safeGetSession}}) => {
+  console.log("PATCH")
   try {
+    let url = new URL(request.url)
+    let table = url.pathname.split('/').at(-1);
+    //never have more than 1 'await request.json()' it will throw an 'unusable body' error
     const dataEntry = removeNullProperties(await request.json());
     let result;
     const { data, error } = await supabase
-      .from(endpoint)
-      .update(dataEntry)
+      .from(table)
+      .update({...dataEntry})
       .match({ id: dataEntry.id });
 
     result = { message: 'Data updated successfully!', data };

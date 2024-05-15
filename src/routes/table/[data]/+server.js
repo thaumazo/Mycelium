@@ -9,5 +9,5 @@ export const POST = async (event) => {
 };
 
 export const PATCH = async (event) => {
-  return apiUtils.POST(event);
+  return apiUtils.PATCH(event);
 };

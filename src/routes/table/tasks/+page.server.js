@@ -3,7 +3,7 @@ import { loadUtil } from '$lib/apiUtils.js';
 export async function load(event) {
   let table = 'tasks'
   let filters = {
-    select: "name, status"
+    select: "id, name, status"
     // Add additional query parameters as needed, e.g., eq: "id=value", "name=test"
   };
 

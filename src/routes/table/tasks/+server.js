@@ -5,9 +5,11 @@ export const GET = async (event) => {
 };
 
 export const POST = async (event) => {
+    console.log(event.request.body)
     return apiUtils.POST(event);
 };
 
 export const PATCH = async (event) => {
-    return apiUtils.POST(event);
+    console.log(event.request.body);
+    return apiUtils.PATCH(event);
 };
