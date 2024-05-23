@@ -10,7 +10,7 @@ export async function load(event) {
     // Add additional query parameters as needed, e.g., eq: "id=value", "name=test"
   };
   let table = "table/log";
-
+'.'
   // Call loadUtil with the modified event
   return await loadUtil(event, table, filter);
 }

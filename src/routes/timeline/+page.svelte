@@ -17,12 +17,15 @@
 						tags.push(tag.name);
 					});
 				}
-				log.push({
-					created_at: new Date(element.created_at).toLocaleString(),
-					item: element.item.name,
-					tags: tags,
-					description: element.description
-				});
+				//TODO: Update this and add ui features as a privacy screen
+				if (!element.item.name.toLowerCase().includes('weed')) {
+					log.push({
+						created_at: new Date(element.created_at).toLocaleString(),
+						item: element.item.name,
+						tags: tags,
+						description: element.description
+					});
+				}
 			});
 			headers = Object.keys(log[0]);
 			console.log(log);
