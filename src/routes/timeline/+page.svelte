@@ -13,7 +13,7 @@
 			element.item.tags.forEach(tag => {
 				tags.push(tag.name);
 			})
-			log.push({created_at: new Date(element.created_at).toLocaleString(), item: element.item.name, tags: tags})
+			log.push({created_at: new Date(element.created_at).toLocaleString(), item: element.item.name, tags: tags, description: element.description})
 		});
 		headers = Object.keys(log[0]);
 		console.log(log);
