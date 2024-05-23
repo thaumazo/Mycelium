@@ -69,6 +69,28 @@
 		//used to refresh the data on the page. Should be using some form of invalidate('/pathname') but that isn't working. InvalidateAll() is the nuclear option which clears all pages/everything.
 		invalidateAll();
 	}
+
+    async function handleDelete(event) {
+        let item = event.detail.item;
+		console.log('Deleting...', item);
+		showModal = false;
+
+        let endpoint = $page.url.pathname.split('/').at(-1);
+        console.log()
+        const response = await fetch(`./${endpoint}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({...item})
+        });
+
+
+		//used to refresh the data on the page. Should be using some form of invalidate('/pathname') but that isn't working. InvalidateAll() is the nuclear option which clears all pages/everything.
+		invalidateAll();
+	}
+
+
 </script>
 
 <div class="overflow-x-auto scrollbar-styled m-4 border border-gray-300 rounded-lg">
@@ -103,4 +125,4 @@
 
 <button class="btn btn-primary" on:click={() => openModal()}>Add new row</button>
 
-<FormModal show={showModal} item={currentItem} {isNew} on:save={handleSave} on:close={closeModal} />
+<FormModal show={showModal} item={currentItem} {isNew} on:remove={handleDelete} on:save={handleSave} on:close={closeModal}  />
