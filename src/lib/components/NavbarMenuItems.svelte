@@ -1,4 +1,5 @@
 <li><a href="/timeline">Timeline</a></li>
+<li><a href="/new-log"></a>New Log</li>
 <li>
 	<details>
 		<summary>Data Tables</summary>
