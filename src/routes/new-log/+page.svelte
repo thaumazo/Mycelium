@@ -31,16 +31,16 @@
 </script>
 
 <div class="hero min-h-screen bg-base-200">
-	<div class="hero-content text-center w-4/5">
+	<div class="hero-content text-center w-full h-full">
 		<form
-			class="flex flex-col w-4/5"
+			class="flex flex-col h-4/5 w-4/5"
 			on:submit={(event) => {
 				event.preventDefault();
 				handleSubmit();
 			}}
 		>
 			<textarea
-				class="textarea textarea-primary m-1 textarea-lg"
+				class="textarea textarea-primary m-1 textarea-lg flex-1"
 				name="input"
 				placeholder="Log your day!"
 				bind:value
