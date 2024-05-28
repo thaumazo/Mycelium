@@ -1,6 +1,7 @@
 <script>
     export let data = [];
     export let headers = [];
+    export let table = '';
     import FormModal from '$lib/components/FormModal.svelte';
 
     import { invalidateAll } from '$app/navigation';
@@ -30,7 +31,11 @@
     // Events for adding/updating items
 
     async function handleNewRow(item, isNew) {
-    let endpoint = $page.url.pathname.split('/').at(-1);
+    let endpoint;
+    if(table){
+        endpoint = table;
+    }
+    else endpoint = $page.url.pathname.split('/').at(-1);
 
     console.log(endpoint, item, isNew);
     if (isNew) {
@@ -71,11 +76,14 @@
 	}
 
     async function handleDelete(event) {
+        let endpoint;
+        if(table){
+        endpoint = table;
+    }
+    else endpoint = $page.url.pathname.split('/').at(-1);
         let item = event.detail.item;
 		console.log('Deleting...', item);
 		showModal = false;
-
-        let endpoint = $page.url.pathname.split('/').at(-1);
         console.log()
         const response = await fetch(`./${endpoint}`, {
             method: 'DELETE',

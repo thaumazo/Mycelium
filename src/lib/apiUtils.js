@@ -60,11 +60,22 @@ export const POST = async ({request, locals: {supabase, safeGetSession}}) => {
     let url = new URL(request.url)
     let table = url.pathname.split('/').at(-1);
     //never have more than 1 'await request.json()' it will throw an 'unusable body' error
-    const dataEntry = removeNullProperties(await request.json());
+    let dataEntries = await request.json();
+
+    // Ensure dataEntries is an array
+    if (!Array.isArray(dataEntries)) {
+      dataEntries = [dataEntries];
+    }
+
+    // Remove null properties from each entry
+    const filteredEntries = dataEntries.map(removeNullProperties);
+
     const { data, error } = await supabase
       .from(table)
-      .insert([dataEntry]);
+      .insert(filteredEntries)
+      .select();
 
+      
     if (error) throw new Error(error.message);
     return json({ message: 'New data added successfully!', data });
   } catch (error) {
@@ -84,7 +95,8 @@ export const PATCH = async ({request, locals: {supabase, safeGetSession}}) => {
     const { data, error } = await supabase
       .from(table)
       .update({...dataEntry})
-      .match({ id: dataEntry.id });
+      .match({ id: dataEntry.id })
+      .select();
 
     result = { message: 'Data updated successfully!', data };
     if (error) throw new Error(error.message);
@@ -105,7 +117,8 @@ export const DELETE = async ({ request, locals: { supabase, safeGetSession } }) 
     const { data, error } = await supabase
       .from(table)
       .delete()
-      .match({ id });
+      .match({ id })
+      .select();
 
     if (error) throw new Error(error.message);
 
