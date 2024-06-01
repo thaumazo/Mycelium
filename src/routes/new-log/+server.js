@@ -1,5 +1,5 @@
-import { OpenAI, FunctionTool, OpenAIAgent, Settings } from "llamaindex";
-import { SECRET_OPENAI_API_KEY } from '$env/static/private'
+import { OpenAI, FunctionTool, OpenAIAgent, Settings, Anthropic, AnthropicAgent } from "llamaindex";
+import { SECRET_OPENAI_API_KEY, SECRET_ANTHROPIC_API_KEY } from '$env/static/private'
 
 
 
@@ -32,38 +32,69 @@ let jsonExample = `[
 
 export const POST = async (event) => {
     //settings and setup.
-    Settings.llm = new OpenAI({
-        apiKey: SECRET_OPENAI_API_KEY,
-        model: "gpt-4o",
-    });
 
-    Settings.callbackManager.on("llm-tool-call", (event) => {
-        console.log(event.detail.payload);
-    });
-    Settings.callbackManager.on("llm-tool-result", (event) => {
-        console.log(event.detail.payload);
-    });
     try {
         // Retrieve the body content from the request
-        const text = await event.request.json(); // Use .json() to parse the request body as JSON
-        console.log(text);
+        const form = await event.request.json(); // Use .json() to parse the request body as JSON
+        console.log(form);
 
+        if (form.model === "openAI") {
+            Settings.llm = new OpenAI({
+                apiKey: SECRET_OPENAI_API_KEY,
+                model: "gpt-4o",
+            });
+        } else if (form.model === "anthropic") {
+            Settings.llm = new Anthropic({
+                apiKey: SECRET_ANTHROPIC_API_KEY
+            });
+        }
+
+        Settings.callbackManager.on("llm-tool-call", (event) => {
+            console.log(event.detail.payload);
+        });
+        Settings.callbackManager.on("llm-tool-result", (event) => {
+            console.log(event.detail.payload);
+        });
         //get the tags and items from the database.
         let { items, tags } = await loadItemsAndTags(event);
 
-        let systemPrompt = `You are a journaling assistant which takes user text and uses it to generate a list of log items to be added to a timeline. Included below is the existing list of items which can be added, along with their associated tags. New items may be generated if the content doesn't fit any existing data, but always fit into the more general existing items first. For example 'black tea' should not be added if there is already an entry for 'tea', 'play with pets' should not be created if there is already 'pet care' . Your The output should take the following raw JSON structure (do NOT include a json codeblock): ${jsonExample}  Existing tags: ${tags} Existing items: ${items}`
+        console.log(items,tags);
 
+        let systemPrompt = `You are a journaling assistant that takes user text and uses it to generate a list of log items to be added to a timeline. Included below is the existing list of items which can be added, along with their associated tags.
+
+Your primary goal is to match the user's input with the existing items as closely as possible. Only generate new items if the content absolutely does not fit any of the existing items. For example, 'black tea' should be matched with 'tea' if 'tea' already exists in the list, and 'play with pets' should be matched with 'pet care' if 'pet care' is an existing item.
+A good strategy is to word match. If the input contains the exact word of an existing item, it should be matched with that item. If the input contains a word that is a substring of an existing item, it should be matched with that item. If the input contains multiple words that are substrings of an existing item, it should be matched with that item. Ex: If a entry talks about 'working on programming', it should be encoded as 'programming' and matched with 'programming'. 
+You can generate a list of outputs, so when in doubt, it is better to generate more suggestions than fewer.
+When generating the output, use the following raw JSON structure (do NOT include a JSON codeblock):
+${jsonExample}
+
+Existing tags: ${tags}
+Existing items: ${items}`
         // make the request to openai
-        const agent = new OpenAIAgent({
-            tools: [], // Include tools if necessary
-            systemPrompt,
-        });
 
-        const response = await agent.chat({ message: text.content });
-        let json = JSON.parse(response.response.message.content);
+        let responseContent;
+        if (form.model === "openAI") {
+            const agent = new OpenAIAgent({
+                tools: [], // Include tools if necessary
+                systemPrompt,
+            });
+            const response = await agent.chat({ message: form.content });
+            responseContent = JSON.parse(response.response.message.content);//OpenAI
+        } else if (form.model === "anthropic") {
+            const agent = new AnthropicAgent({
+                tools: [], // Include tools if necessary
+                systemPrompt,
+            });
+            const response = await agent.chat({ message: form.content });
+            responseContent = JSON.parse(response.response.message.content[0].text); //Anthropic
+        }
+       
+        console.log(responseContent);
+
+        // let json = JSON.parse(responseContent);
         // Create the response body
         const responseBody = JSON.stringify({
-            suggestions: json,
+            suggestions: responseContent,
             items: items,
             tags: tags
         });

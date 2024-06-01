@@ -26,7 +26,7 @@
 	// 		description: 'back to programming'
 	// 	}
 	// ];
-
+    let model = 'anthropic';
 	let value = '';
 	async function handleSubmit() {
 		suggestions = [];
@@ -39,7 +39,8 @@
 		};
 
 		let bodyContent = JSON.stringify({
-			content: value
+			content: value,
+			model: model
 		});
 
 		let response = await fetch('/new-log', {
@@ -168,6 +169,10 @@
 					handleSubmit();
 				}}
 			>
+				<select class="select" name="model" id="" bind:value={model}>
+					<option value="openAI">Open AI</option>
+					<option value="anthropic">Anthropic</option>
+				</select>
 				<textarea
 					class="textarea textarea-primary m-1 textarea-lg flex-1"
 					name="input"
