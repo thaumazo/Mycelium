@@ -11,8 +11,6 @@ export async function loadUtil({url, fetch}, table, filters) {
     newUrl.searchParams.append(key, value);
   }
 
-  console.log(newUrl);
-
   try {
     let res = await fetch(`./${table + newUrl.search}`);
     //may want to update this so that its doing absolute and not relative URLs
@@ -128,3 +126,20 @@ export const DELETE = async ({ request, locals: { supabase, safeGetSession } }) 
     return json({ error: error.message }, { status: 401 });
   }
 };
+
+export const getForeignKeys = async (tableName, supabaseClient) => {
+  console.log(`Fetching foreign keys for table: ${tableName}`);
+  
+  const { data, error } = await supabaseClient
+    .rpc('fetch_foreign_keys', { table_name: tableName });
+
+  if (error) {
+    console.error(`Error fetching foreign keys for ${tableName}:`, error);
+    console.error(`Error details:`, JSON.stringify(error, null, 2));
+    return [];
+  }
+
+  console.log(`Foreign keys for ${tableName}:`, data);
+  return data;
+};
+
