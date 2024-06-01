@@ -143,3 +143,14 @@ export const getForeignKeys = async (tableName, supabaseClient) => {
   return data;
 };
 
+export const fetchGeneratedTypes = async (fetch) => {
+  const response = await fetch('/db-types');
+  const data = await response.json();
+
+  if (data.error) {
+    console.error('Error fetching generated types:', data.error);
+    return null;
+  }
+
+  return data.types;
+};
