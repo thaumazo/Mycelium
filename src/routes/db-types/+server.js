@@ -33,7 +33,7 @@ export const POST = async ({locals: { supabase } }) => {
     const typesFilePath = path.resolve('src/lib/database.types.ts');
     fs.writeFileSync(typesFilePath, stdout);
      // Read the file into a buffer
-     const fileBuffer = fs.readFileSync(typesFilePath);
+    const fileBuffer = fs.readFileSync(typesFilePath);
 
 
     const { data, error } = await supabase.storage
@@ -92,6 +92,8 @@ export const GET = async ({locals: {supabase}}) => {
     }
 
     const typesContent = await data.text();
+    const typesFilePath = path.resolve('src/lib/database.types.ts');
+    fs.writeFileSync(typesFilePath, typesContent);
 
     return new Response(typesContent, {
       status: 200,
