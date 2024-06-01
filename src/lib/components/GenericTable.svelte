@@ -112,7 +112,9 @@
             </tr>
         </thead>
         <tbody>
+            <slot>
             {#each data as item, index}
+            
                 <tr class="border-b border-gray-300">
                     <td class="border-r border-gray-300">
                         <button
@@ -127,6 +129,7 @@
                     {/each}
                 </tr>
             {/each}
+            </slot>
         </tbody>
     </table>
 </div>
