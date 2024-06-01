@@ -1,6 +1,6 @@
 name: 'generate-types'
 on:
-  pull_request:
+  push:
 
 jobs:
   build: 
