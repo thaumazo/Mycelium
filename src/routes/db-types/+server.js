@@ -22,14 +22,17 @@ function generateSupabaseQueryWithFormats(schema, tableName) {
   // Function to add formats from a table schema
   function addFormats(tableSchema, tableName, formatsObj, nest = false) {
       if (nest && !formatsObj[tableName]) {
-          formatsObj[tableName] = {};
+          formatsObj[tableName] = { format: 'foreign table' };
       }
       const targetObj = nest ? formatsObj[tableName] : formatsObj;
       Object.entries(tableSchema.properties).forEach(([key, value]) => {
           targetObj[key] = {
               format: value.format || null,
-              foreignKey: value.description && value.description.includes('Foreign Key') || false
+              foreignKey: false
           };
+          if (value.description && value.description.includes('Foreign Key')) { 
+              targetObj[key].foreignKey = true;
+          }
       });
   }
 
@@ -78,27 +81,23 @@ function generateSupabaseQueryWithFormats(schema, tableName) {
       }
   });
 
-  return { query, formats };
+  return { query, format: formats };
 }
 
-export const PATCH = async ({ locals: { supabase } }) => {
-  console.log('db-types PATCH');
+export const GET = async ({ url, locals: { supabase } }) => {
+  console.log('db-types GET');
   try {
 
     let res = await fetch(`${PUBLIC_SUPABASE_URL}/rest/v1/?apikey=${PUBLIC_SUPABASE_ANON_KEY}`)
     let schema = await res.json()
     // console.log(data.definitions);
+    let table = url.searchParams.get('table');
 
-    let {query, formats} = generateSupabaseQueryWithFormats(schema.definitions, 'items');
+    let {query, format} = generateSupabaseQueryWithFormats(schema.definitions, table);
     // let query = 'items?select=*';
+console.log(query, format);
 
-    let { data, error } = await supabase.from('items').select(query);
-
-    if(error) {
-      console.error('Error:', error.message); 
-    }
-
-    return new Response(JSON.stringify({query, definitions: schema.definitions, data, formats}), {
+    return new Response(JSON.stringify({query, format}), {
       status: 200,
       headers: {
         'Content-Type': 'application/json'
@@ -108,66 +107,6 @@ export const PATCH = async ({ locals: { supabase } }) => {
   } catch (error) {
     console.error('Error:', error.message);
     return new Response(JSON.stringify({ error: 'Error fetching types JSON file' }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-  }
-};
-
-export const POST = async ({ locals: { supabase } }) => {
-  try {
-    const { data, error } = await supabase.storage
-      .from('data_structures')
-      .download('database.types.json');
-
-    if (error) {
-      console.error('Error fetching types JSON file:', error.message);
-      return new Response(JSON.stringify({ error: 'Error fetching types JSON file' }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-    }
-
-    const typesContent = await data.text();
-    const typesFilePath = path.resolve('src/lib/database.types.json');
-    fs.writeFileSync(typesFilePath, typesContent);
-
-    return new Response(typesContent, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-  } catch (error) {
-    console.error('Error:', error.message);
-    return new Response(JSON.stringify({ error: 'Error fetching types JSON file' }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-  }
-};
-
-export const GET = async () => {
-  try {
-    const jsonFilePath = path.resolve('src/lib/database.types.json');
-    const jsonData = fs.readFileSync(jsonFilePath, 'utf-8');
-    const jsonObject = JSON.parse(jsonData);
-
-    return new Response(JSON.stringify(jsonObject), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-  } catch (error) {
-    console.error('Error:', error.message);
-    return new Response(JSON.stringify({ error: 'Error reading JSON file' }), {
       status: 500,
       headers: {
         'Content-Type': 'application/json'

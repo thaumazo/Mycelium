@@ -2,11 +2,20 @@
     export let data = [];
     export let headers = [];
     export let table = '';
+    export let format = '';
+    import NestedTable from './NestedTable.svelte';
+
+
+    onMount(async () => {
+        console.log(format);
+    });
+
     import FormModal from '$lib/components/FormModal.svelte';
 
     import { invalidateAll } from '$app/navigation';
     
     import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
     let showModal = false;
     let currentItem = {};
@@ -99,6 +108,8 @@
 	}
 
 
+
+
 </script>
 
 <div class="overflow-x-auto scrollbar-styled m-4 border border-gray-300 rounded-lg">
@@ -107,7 +118,18 @@
             <tr class="border-b border-gray-300">
                 <th class="border-r border-gray-300">Actions</th>
                 {#each headers as header}
-                    <th class="border-r border-gray-300">{header}</th>
+                    <th class="border-r border-gray-300">{header}{` <${format[header].format}>`}
+                    {#if format[header].format == 'foreign table'}
+                        <select name="" id="" bind:value={format[header].display}>
+                            {#each Object.entries(format[header]) as [key, value]}
+                            {#if key != 'format'}
+                                <option value={key}>{key}</option>
+                            {/if}
+                                
+                            {/each}
+                        </select>
+                        
+                    {/if}</th>
                 {/each}
             </tr>
         </thead>
@@ -125,7 +147,11 @@
                         </button>
                     </td>
                     {#each headers as key}
-                        <td class="border-r border-gray-300">{item[key]}</td>
+                        <td class="border-r border-gray-300">{#if format[key].format == 'foreign table'}
+                            <NestedTable data={item[key]} format={format[key]} display={format[key].display} />
+                        {:else}
+                            {item[key]}
+                        {/if}</td>
                     {/each}
                 </tr>
             {/each}

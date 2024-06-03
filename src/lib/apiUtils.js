@@ -127,30 +127,17 @@ export const DELETE = async ({ request, locals: { supabase, safeGetSession } }) 
   }
 };
 
-export const getForeignKeys = async (tableName, supabaseClient) => {
-  console.log(`Fetching foreign keys for table: ${tableName}`);
-  
-  const { data, error } = await supabaseClient
-    .rpc('fetch_foreign_keys', { table_name: tableName });
 
-  if (error) {
-    console.error(`Error fetching foreign keys for ${tableName}:`, error);
-    console.error(`Error details:`, JSON.stringify(error, null, 2));
-    return [];
-  }
-
-  console.log(`Foreign keys for ${tableName}:`, data);
-  return data;
-};
-
-export const fetchGeneratedTypes = async (fetch) => {
-  const response = await fetch('/db-types');
+export const fetchGeneratedTypes = async (fetch, table) => {
+  const response = await fetch('../db-types?table=' + table);
   const data = await response.json();
+
+  console.log(data)
 
   if (data.error) {
     console.error('Error fetching generated types:', data.error);
     return null;
   }
 
-  return data.types;
+  return {...data};
 };
