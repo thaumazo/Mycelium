@@ -2,6 +2,7 @@
     export let data = {};
     export let format = {};
     export let level = 0;
+    export let table = '';
     export let display = 'id'; // Key to display for nested objects
 
     function isObject(val) {
@@ -21,6 +22,8 @@
                     {:else}
                         {item}
                     {/if}
+                    <a href={`${table}?id=eq.${item.id}`}><button class="btn">view</button></a>
+                    <br>
                     ---
                 </li>
             {/each}
@@ -29,6 +32,7 @@
         {#if display in data}
             <strong>{display}:</strong> {data[display]}<br />
         {/if}
+        <a href={`${table}?id=eq.${data.id}`}><button class="btn">view</button></a>
     {:else}
         {data}
     {/if}

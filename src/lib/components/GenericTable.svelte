@@ -148,7 +148,7 @@
                     </td>
                     {#each headers as key}
                         <td class="border-r border-gray-300">{#if format[key].format == 'foreign table'}
-                            <NestedTable data={item[key]} format={format[key]} display={format[key].display} />
+                            <NestedTable data={item[key]} format={format[key]} display={format[key].display} table={key}/>
                         {:else}
                             {item[key]}
                         {/if}</td>
