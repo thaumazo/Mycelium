@@ -7,81 +7,94 @@ import { OpenAI, FunctionTool, OpenAIAgent, Settings, Anthropic, AnthropicAgent 
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 
 
-function generateSupabaseQueryWithFormats(schema, tableName) {
-  // Start with the basic query for the primary table
-  let query = `*`;
-  let includedTables = new Set([tableName]);  // Keep track of included tables to avoid duplicates
-  let formats = {};  // To store the format of each column
+function generateSupabaseQueryWithFormat(schema, tableName) {
+    let query = `*`; // Start with selecting all columns from the main table
+    let includedTables = new Set([tableName]); // Track included tables to avoid duplicates
+    let format = {}; // Object to store format information
 
-  // Helper function to extract the foreign table from the description
-  function extractTableName(description) {
-      const match = description.match(/`(.+?)`/);
-      return match ? match[1].split('.')[0] : null;
-  }
+    // Helper function to extract the foreign table name from the description
+    function extractTableName(description) {
+        const match = description.match(/`(.+?)`/);
+        return match ? match[1].split('.')[0] : null;
+    }
 
-  // Function to add formats from a table schema
-  function addFormats(tableSchema, tableName, formatsObj, nest = false) {
-      if (nest && !formatsObj[tableName]) {
-          formatsObj[tableName] = { format: 'foreign table' };
-      }
-      const targetObj = nest ? formatsObj[tableName] : formatsObj;
-      Object.entries(tableSchema.properties).forEach(([key, value]) => {
-          targetObj[key] = {
-              format: value.format || null,
-              foreignKey: false
-          };
-          if (value.description && value.description.includes('Foreign Key')) { 
-              targetObj[key].foreignKey = true;
-          }
-      });
-  }
+    // Function to add format information for a table schema
+    function addFormat(tableSchema, tableName, formatObj) {
+        Object.entries(tableSchema.properties).forEach(([key, value]) => {
+            if (value.description && value.description.includes('Foreign Key')) {
+                // Extract the foreign table name from the foreign key description
+                const foreignTable = extractTableName(value.description);
+                if (foreignTable && schema[foreignTable]) {
+                    // Add foreign table format information
+                    formatObj[key] = { format: `foreign table [${foreignTable}]`, foreignKey: true, table: foreignTable};
+                    addFormat(schema[foreignTable], foreignTable, formatObj[key]);
+                } else {
+                    // Add format information for the foreign key field
+                    formatObj[key] = { format: value.format || null, foreignKey: true };
+                }
+            } else {
+                // Add format information for regular fields
+                formatObj[key] = { format: value.format || null, foreignKey: false };
+            }
+            formatObj[key].display = true;
+        });
+    }
 
-  // Add formats for the primary table at the top level
-  if (schema[tableName]) {
-      addFormats(schema[tableName], tableName, formats);
-  }
+    // Add format information for the primary table
+    if (schema[tableName]) {
+        addFormat(schema[tableName], tableName, format);
+    }
 
-  // Helper function to recursively add foreign key related tables
-  function includeRelatedTables(tableName, formatsObj) {
-      if (schema[tableName] && schema[tableName].properties) {
-          Object.entries(schema[tableName].properties).forEach(([key, value]) => {
-              if (value.description && value.description.includes('Foreign Key')) {
-                  const foreignTable = extractTableName(value.description);
-                  if (foreignTable && schema[foreignTable] && !includedTables.has(foreignTable)) {
-                      query += `,${foreignTable}(*)`;
-                      includedTables.add(foreignTable);
-                      addFormats(schema[foreignTable], foreignTable, formatsObj, true);
-                      includeRelatedTables(foreignTable, formatsObj[foreignTable]);
-                  }
-              }
-          });
-      }
-  }
+    // Function to include direct foreign keys in the query and format object
+    function includeDirectForeignKeys(tableName, formatObj) {
+        if (schema[tableName] && schema[tableName].properties) {
+            Object.entries(schema[tableName].properties).forEach(([key, value]) => {
+                if (value.description && value.description.includes('Foreign Key')) {
+                    const foreignTable = extractTableName(value.description);
+                    if (foreignTable && schema[foreignTable] && !includedTables.has(foreignTable)) {
+                        // Include the foreign table in the query with an alias
+                        query += `, ${key}: ${foreignTable}(*)`;
+                        includedTables.add(foreignTable);
+                        // Add format information for the foreign table
+                        addFormat(schema[foreignTable], foreignTable, formatObj[key]);
+                        includeDirectForeignKeys(foreignTable, formatObj[key]);
+                    }
+                }
+            });
+        }
+    }
 
-  // Include foreign key tables
-  includeRelatedTables(tableName, formats);
+    // Function to include related tables (like join tables) in the query and format object
+    function includeJoinTables(tableName, formatObj) {
+        Object.entries(schema).forEach(([key, value]) => {
+            if (value.properties) {
+                const relatedKeys = Object.keys(value.properties);
+                const relatedTables = relatedKeys.map(key => extractTableName(value.properties[key].description || ''));
+                if (relatedTables.includes(tableName)) {
+                    const otherTables = relatedTables.filter(t => t !== tableName && schema[t]);
+                    otherTables.forEach(t => {
+                        if (t && !includedTables.has(t)) {
+                            // Include the join table in the query
+                            query += `, ${t}(*)`;
+                            includedTables.add(t);
+                            // Add format information for the join table
+                            if (!formatObj[t]) {
+                                formatObj[t] = { format: `foreign table [${t}]`, display: true, table: t};
+                            }
+                            addFormat(schema[t], t, formatObj[t]);
+                            includeDirectForeignKeys(t, formatObj[t]);
+                        }
+                    });
+                }
+            }
+        });
+    }
 
-  // Include related data from join tables
-  Object.entries(schema).forEach(([key, value]) => {
-      if (value.properties) {
-          const relatedKeys = Object.keys(value.properties);
-          const relatedTables = relatedKeys.map(key => extractTableName(value.properties[key].description || ''));
-          if (relatedTables.includes(tableName)) {
-              // Identify the other table involved in the join
-              const otherTables = relatedTables.filter(t => t !== tableName && schema[t]);
-              otherTables.forEach(t => {
-                  if (t && !includedTables.has(t)) {
-                      query += `,${t}(*)`;
-                      includedTables.add(t);
-                      addFormats(schema[t], t, formats, true);
-                      includeRelatedTables(t, formats[t]);
-                  }
-              });
-          }
-      }
-  });
+    // Include direct foreign keys and join tables
+    includeDirectForeignKeys(tableName, format);
+    includeJoinTables(tableName, format);
 
-  return { query, format: formats };
+    return { query, format };
 }
 
 export const GET = async ({ url, locals: { supabase } }) => {
@@ -93,7 +106,7 @@ export const GET = async ({ url, locals: { supabase } }) => {
     // console.log(data.definitions);
     let table = url.searchParams.get('table');
 
-    let {query, format} = generateSupabaseQueryWithFormats(schema.definitions, table);
+    let {query, format} = generateSupabaseQueryWithFormat(schema.definitions, table);
     // let query = 'items?select=*';
 console.log(query, format);
 

@@ -1,12 +1,13 @@
 <!-- src/lib/Modal.svelte -->
 <script>
 	import { createEventDispatcher } from 'svelte';
-
+	const dispatch = createEventDispatcher();
 	export let show = false;
 	export let item = {};
+	export let format = {};
 	export let isNew;
 
-	const dispatch = createEventDispatcher();
+	
 
 	function save() {
 		dispatch('save', { item, isNew });
@@ -20,6 +21,7 @@
 		dispatch('close');
 	}
 
+
 	// Dynamically determine the fields from the item object
 	$: fields = item ? Object.keys(item) : [];
 </script>
@@ -31,7 +33,7 @@
 				{#each fields as field}
 					<div class="form-control">
 						<label class="label" for={field}>
-							<span class="label-text capitalize">{field}:</span>
+							<span class="label-text capitalize">{field}{`<${format[field].format}>`}:</span>
 						</label>
 						<input type="text" id={field} class="input input-bordered" bind:value={item[field]} />
 					</div>
