@@ -5,7 +5,6 @@
 	export let format = {};
 	export let level = 0;
 	export let table = '';
-	// export let display = 'id'; // Key to display for nested objects
 
 	function isObject(val) {
 		return val && typeof val === 'object' && !Array.isArray(val);
@@ -26,28 +25,23 @@
 						{#if format[key].display}
 							<div>
 								<strong>{key}:</strong>{value}
-								<!-- <NestedTable {data: value} {format: format[key]} {level: level + 1} {table: table}/> -->
 							</div>
 						{/if}
 					{/each}
-					<a href={`${table}?id=eq.${item.id}`}><button class="btn">view</button></a>
+					<a href={`${table}?id=eq.${item.id}`}><button class="btn btn-accent btn-xs">view</button></a>
 				</li>
 				---
 			{/each}
 		</ul>
 	{:else if isObject(data)}
-		<!-- {#if format[Object.entries(data)[0]].display}
-            {data}
-        {/if} -->
 		{#each Object.entries(data) as [key, value]}
 			{#if format[key].display}
 				<div>
 					<strong>{key}:</strong>{value}
-					<!-- <NestedTable {data: value} {format: format[key]} {level: level + 1} {table: table}/> -->
 				</div>
 			{/if}
 		{/each}
-		<a href={`${table}?id=eq.${data.id}`}><button class="btn">view</button></a>
+		<a href={`${table}?id=eq.${data.id}`}><button class="btn btn-accent btn-xs">view</button></a>
 	{:else}
 		{data}
 	{/if}

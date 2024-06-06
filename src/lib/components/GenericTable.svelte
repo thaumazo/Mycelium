@@ -6,6 +6,7 @@
 	import NestedTable from './NestedTable.svelte';
 	import FormatModal from '$lib/components/FormatModal.svelte';
 	import { writable } from 'svelte/store';
+	import {profileStore} from '$lib/stores.js';
 
 	let showFormatModal = false;
 
@@ -20,14 +21,34 @@
 
 	function openFormatModal() {
         console.log('opening format modal')
+		console.log($profileStore)
         console.log(format)
 		showFormatModal = true;
 	}
 
-	function closeFormatModal(event) {
-        console.log(event.detail);
-        format = event.detail;
+	async function closeFormatModal(event) {
 		showFormatModal = false;
+        format = event.detail;
+		console.log(format)
+		console.log(table);
+		let endpoint;
+		if (table) {
+			endpoint = table;
+		} else endpoint = $page.url.pathname.split('/').at(-1);
+		
+		let body = { display: format, table: endpoint, user: $profileStore.id };
+		if(format.displayId) {
+			body.id = format.displayId;
+		}
+		let {data, error} = await fetch('./views', {
+			method: format.displayId ? 'PATCH' : 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({...body})
+		});
+		console.log(data, error);
+		
 	}
 
 	function handlePropertyChange(header, event) {

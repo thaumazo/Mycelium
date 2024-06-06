@@ -13,9 +13,9 @@
 
 	onMount(() => {
 		// console.log('format, ', format);
-		// Object.entries(format).forEach(element => {
-		// 	console.log(element);
-		// });
+		Object.entries(format).forEach(element => {
+			console.log(element);
+		});
 	});
 </script>
 
@@ -25,6 +25,7 @@
             <h3 class="font-bold text-lg">Data Format</h3>
             <div>
                 {#each Object.entries(format) as key}
+                {#if key[0] !== 'displayId'}
                     <div>
                         <label>
                             <input type="checkbox" bind:checked={key[1].display}/> <strong>{key[0]}</strong>
@@ -43,6 +44,7 @@
                             </ul>
                         {/if}
                     </div>
+                    {/if}
                 {/each}
             </div>
             <div class="modal-action">

@@ -141,3 +141,13 @@ export const fetchGeneratedTypes = async (fetch, table) => {
 
   return {...data};
 };
+
+export const updateTableView = async ({locals: supabase}, table, user, display) => {
+  const { data, error } = await supabase
+    .from('views')
+    .update({ display})
+    .eq('table', table)
+    .eq('user', user)
+    .select()
+            
+}
