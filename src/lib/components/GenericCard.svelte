@@ -1,5 +1,6 @@
 <script>
 	export let title;
+
 </script>
 
 <div class="card w-96 bg-neutral text-neutral-content">
