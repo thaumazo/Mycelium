@@ -11,8 +11,6 @@ export async function loadUtil({url, fetch}, table, filters) {
     newUrl.searchParams.append(key, value);
   }
 
-  console.log(newUrl);
-
   try {
     let res = await fetch(`./${table + newUrl.search}`);
     //may want to update this so that its doing absolute and not relative URLs
@@ -60,11 +58,22 @@ export const POST = async ({request, locals: {supabase, safeGetSession}}) => {
     let url = new URL(request.url)
     let table = url.pathname.split('/').at(-1);
     //never have more than 1 'await request.json()' it will throw an 'unusable body' error
-    const dataEntry = removeNullProperties(await request.json());
+    let dataEntries = await request.json();
+
+    // Ensure dataEntries is an array
+    if (!Array.isArray(dataEntries)) {
+      dataEntries = [dataEntries];
+    }
+
+    // Remove null properties from each entry
+    const filteredEntries = dataEntries.map(removeNullProperties);
+
     const { data, error } = await supabase
       .from(table)
-      .insert([dataEntry]);
+      .insert(filteredEntries)
+      .select();
 
+      
     if (error) throw new Error(error.message);
     return json({ message: 'New data added successfully!', data });
   } catch (error) {
@@ -84,7 +93,8 @@ export const PATCH = async ({request, locals: {supabase, safeGetSession}}) => {
     const { data, error } = await supabase
       .from(table)
       .update({...dataEntry})
-      .match({ id: dataEntry.id });
+      .match({ id: dataEntry.id })
+      .select();
 
     result = { message: 'Data updated successfully!', data };
     if (error) throw new Error(error.message);
@@ -105,7 +115,8 @@ export const DELETE = async ({ request, locals: { supabase, safeGetSession } }) 
     const { data, error } = await supabase
       .from(table)
       .delete()
-      .match({ id });
+      .match({ id })
+      .select();
 
     if (error) throw new Error(error.message);
 
@@ -115,3 +126,28 @@ export const DELETE = async ({ request, locals: { supabase, safeGetSession } }) 
     return json({ error: error.message }, { status: 401 });
   }
 };
+
+
+export const fetchGeneratedTypes = async (fetch, table) => {
+  const response = await fetch('../db-types?table=' + table);
+  const data = await response.json();
+
+  console.log(data)
+
+  if (data.error) {
+    console.error('Error fetching generated types:', data.error);
+    return null;
+  }
+
+  return {...data};
+};
+
+export const updateTableView = async ({locals: supabase}, table, user, display) => {
+  const { data, error } = await supabase
+    .from('views')
+    .update({ display})
+    .eq('table', table)
+    .eq('user', user)
+    .select()
+            
+}

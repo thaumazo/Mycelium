@@ -12,7 +12,7 @@
           <NavbarMenuItems />
         </ul>
       </div>
-      <a href="/" class="btn btn-ghost text-xl">Community Mycelium</a>
+      <a href="/" class="btn btn-ghost text-xl">RP's Mycelium</a>
     </div>
     <div class="navbar-center hidden lg:flex z-10">
       <ul class="menu menu-horizontal px-1">
@@ -20,6 +20,6 @@
       </ul>
     </div>
     <div class="navbar-end">
-      <a href="/account" class="btn btn-primary">Account</a>
+      <a href="/new-log" class="btn btn-primary">New Log</a>
     </div>
   </div>
