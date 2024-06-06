@@ -13,6 +13,6 @@
 	import GenericTable from '$lib/components/GenericTable.svelte';
 </script>
 
-<GenericTable {headers} data={data.data} />
+<GenericTable {headers} data={data.data} format={data.format}/>
 
 <!-- end file -->

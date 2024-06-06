@@ -4,7 +4,7 @@ import { redirect } from '@sveltejs/kit'
 
 export const load = (async ({url, locals: { safeGetSession } }) => {
   const { session, user } = await safeGetSession()
-  console.log(url);
+  // console.log(url);
   const code = url.searchParams.get('code')
 
   if (!session && code) {
