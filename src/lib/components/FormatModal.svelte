@@ -13,9 +13,9 @@
 
 	onMount(() => {
 		// console.log('format, ', format);
-		Object.entries(format).forEach(element => {
-			console.log(element);
-		});
+		// Object.entries(format).forEach(element => {
+		// 	console.log(element);
+		// });
 	});
 </script>
 

@@ -1,6 +1,6 @@
 <script>
     async function loadDBTypes(){
-        const res = await fetch('/db-types?table=items');
+        const res = await fetch('/db-types?table=people');
         const data = await res.json();
         console.log(data);
     

@@ -4,7 +4,11 @@ import { loadUtil, postUtil, fetchGeneratedTypes } from '$lib/apiUtils.js';
 export async function load(event) {
   // Define searchParams as an object with default parameters
   let table = event.url.pathname.split('/').at(-1);
+
   let { query, format } = await fetchGeneratedTypes(event.fetch, table);
+
+
+  // console.log(query, format);
 
   let filter = {
     select: query // ex: id, name, profile!inner(id, name) 
