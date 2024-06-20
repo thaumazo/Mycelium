@@ -140,18 +140,24 @@ function generateSupabaseQueryWithFormat(schema, tableName, display = {}, displa
 }
 
 // going to loop through all the tables and get the foreign keys
-function getForeignTables(definitions, tableName) {
+function generateQueryFormat(definitions, tableName) {
     let query = `*`;
     let format = {};
     let foreignTables = [];
+    let additionalQueries = [];
+
+    // Top level loop - looks at all of the tables. Key is the table name, value is the table schema
     Object.entries(definitions).forEach(([key, value]) => {
         let table = key;
+
         // add the formats from the tableName table
         if (value.properties) {
             let tables = [];
             let include = false;
             let tableFormat = {};
             let references = [];
+
+            // Second level loop - looks at all of the properties of the table and checks for foreign keys
             let entries = Object.entries(value.properties);
             for (let i = 0; i < entries.length; i++) {
                 let [key, value] = entries[i];
@@ -161,10 +167,15 @@ function getForeignTables(definitions, tableName) {
                     // ex full string: "This is a Foreign Key to `communities.id`.<fk table='communities' column='id'/>"
                     let tn = value.description.match(/table='([^']+)'/);
                     let name = tn ? tn[1] : null;
+                    
                     if(references.includes(name)){
                         //TODO: handle double reference to the same table. For now just skip.
+                        //currently is being added, but is incorrect as it doesn't include the query for this triggering item.
+                        //ex: This is triggered on "community2" but doesn't encode community 2 as a foreign key
                         include = false; 
-                        break;};
+                        additionalQueries.push({table, key, name});
+                        break;
+                    };
                     //add table name to references to avoid double references
                     references.push(name);
                     if (value.description.includes(tableName)) {
@@ -179,7 +190,7 @@ function getForeignTables(definitions, tableName) {
                     if(table == tableName){
                         tableFormat[key] = {format: `foreign table [${key}]`, display: true, table: key};
                         Object.entries(definitions[name].properties).forEach(([subKey, subValue]) => {
-                            console.log(subKey, subValue.format)
+                            // console.log(subKey, subValue.format)
                             tableFormat[key][subKey] = {format: subValue.format, display: true};
                         });
                         
@@ -208,12 +219,9 @@ function getForeignTables(definitions, tableName) {
                 query += `)`;
                 foreignTables.push({ table, tables });
             }
-            else if(table == tableName){
-               
-            }
         }
     });
-    return { foreignTables, query, format };
+    return { foreignTables, query, format, additionalQueries };
 }
 
 export const GET = async ({ url, locals: { supabase, safeGetSession } }) => {
@@ -224,9 +232,15 @@ export const GET = async ({ url, locals: { supabase, safeGetSession } }) => {
         let schema = await res.json();
         let table = url.searchParams.get('table');
 
-        let { foreignTables, query, format } = getForeignTables(schema.definitions, table);
+        let { foreignTables, query, format, additionalQueries } = generateQueryFormat(schema.definitions, table);
 
-        return new Response(JSON.stringify({foreignTables, query, schema: schema.definitions, format}), {
+
+        for (let i = 0; i < additionalQueries.length; i++) {
+            let { foreignTables, query: additionalQuery, format: additionalFormat } = generateQueryFormat(schema.definitions, additionalQueries[i].table);
+            additionalQueries[i] = { ...additionalQueries[i], foreignTables, query: additionalQuery, format: additionalFormat };
+        }
+
+        return new Response(JSON.stringify({foreignTables, query, schema: schema.definitions, format, additionalQueries}), {
             status: 200,
             headers: {
                 'Content-Type': 'application/json'

@@ -132,7 +132,6 @@ export const fetchGeneratedTypes = async (fetch, table) => {
   const response = await fetch('../db-types?table=' + table);
   const data = await response.json();
 
-  console.log(data)
 
   if (data.error) {
     console.error('Error fetching generated types:', data.error);

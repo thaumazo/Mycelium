@@ -6,6 +6,7 @@
 	let headers = [];
 	$: {if (data.data.length > 0) {
 		headers = Object.keys(data.data[0]);
+		console.log(data);
 	}}
 
 
